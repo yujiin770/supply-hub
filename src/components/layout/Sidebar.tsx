@@ -1,139 +1,115 @@
-﻿import React, { useState } from 'react';
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  Settings,
-  HelpCircle,
-  LogOut,
-  BarChart3,
-  Truck,
-  Wallet,
-  Tag,
-} from 'lucide-react';
-import { toast } from 'sonner';
+﻿// src/components/layout/Sidebar.tsx
+import React from 'react';
+import { Home, FileText, BookOpen, Upload, Clock, ShoppingBag } from 'lucide-react';
 
-const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'orders', label: 'Orders', icon: ShoppingCart, badge: 2 },
-  { id: 'products', label: 'Products', icon: Package, badge: 12 },
-  { id: 'catalog', label: 'Catalog', icon: Tag },
-  { id: 'inventory', label: 'Inventory', icon: BarChart3 },
-  { id: 'shipments', label: 'Shipments', icon: Truck },
-  { id: 'payments', label: 'Payments', icon: Wallet },
-  { id: 'customers', label: 'Customers', icon: Users },
-];
+interface SidebarProps {
+    isDesktopCollapsed: boolean;
+    isMobileOpen: boolean;
+    setIsMobileOpen: (val: boolean) => void;
+}
 
-const bottomMenuItems = [
-  { id: 'settings', label: 'Settings', icon: Settings },
-  { id: 'help', label: 'Help', icon: HelpCircle },
-];
+const Sidebar: React.FC<SidebarProps> = ({ isDesktopCollapsed, isMobileOpen, setIsMobileOpen }) => {
+    const menuGroups = [
+        {
+            title: 'ONBOARDING',
+            items: [
+                { label: 'Overview', icon: FileText, active: false },
+                { label: 'KYC Documents', icon: FileText, active: false },
+            ]
+        },
+        {
+            title: 'CATALOG',
+            items: [
+                { label: 'My Catalog', icon: BookOpen, active: false },
+                { label: 'Import Missing', icon: Upload, active: false },
+                { label: 'Recently Added', icon: Clock, active: false },
+            ]
+        },
+        {
+            title: 'OPERATIONS',
+            items: [
+                { label: 'Orders', icon: ShoppingBag, active: false },
+            ]
+        }
+    ];
 
-const Sidebar: React.FC = () => {
-  const [activeItem, setActiveItem] = useState('dashboard');
+    return (
+        <aside
+            className={`
+                fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-100 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.05)]
+                transition-all duration-300 ease-in-out
+                md:relative md:translate-x-0
+                ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} 
+                ${isDesktopCollapsed ? 'md:w-20' : 'md:w-64'}
+                w-64
+            `}
+        >
+            {/* Logo Area - With Smooth Crossfade Transition */}
+            <div className="h-16 flex items-center justify-center border-b border-gray-100 px-4 shrink-0 whitespace-nowrap overflow-hidden relative">
+                {/* Full Logo (Shows when expanded) */}
+                <img
+                    src="/logo.png"  
+                    alt="SupplyHub"
+                    className={`absolute transition-all duration-300 object-contain w-40 ${isDesktopCollapsed ? 'opacity-0 scale-90 pointer-events-none md:block hidden' : 'opacity-100 scale-100'}`}
+                />
+                
+                {/* Small Logo Icon (Shows when collapsed) - SAVE THIS AS "logo-icon.png" in public folder */}
+                <img
+                    src="/logo-icon.png"  
+                    alt="SupplyHub Icon"
+                    className={`absolute transition-all duration-300 object-contain w-8 ${isDesktopCollapsed ? 'opacity-100 scale-100 md:block hidden' : 'opacity-0 scale-50 pointer-events-none hidden'}`}
+                />
+            </div>
 
-  const handleNavigation = (id: string, label: string) => {
-    setActiveItem(id);
-    toast.info(`Navigating to ${label}`, { duration: 2000 });
-  };
-
-  const handleLogout = () => {
-    toast.success('Logged out successfully', { duration: 3000 });
-  };
-
-  return (
-    <aside className="h-full min-h-screen rounded-[32px] border border-slate-900 bg-slate-950 text-slate-100 shadow-2xl overflow-hidden">
-      <div className="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 px-6 py-7">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-violet-600 shadow-lg shadow-slate-900/30">
-            <Package className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-slate-400">SupplyHub</p>
-            <p className="text-xl font-semibold text-white">Inventory Center</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-b border-slate-800 px-6 py-5">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-gradient-to-br from-sky-500 to-violet-600 text-sm font-semibold text-white shadow-lg shadow-slate-900/30">
-            LG
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">Lander Gallego</p>
-            <p className="text-xs text-slate-500">Supplier Admin</p>
-          </div>
-        </div>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto px-3 py-5">
-        <div className="space-y-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeItem === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleNavigation(item.id, item.label)}
-                className={`w-full rounded-3xl px-4 py-3 text-left transition-all duration-200 ${
-                  isActive
-                    ? 'bg-slate-800 text-white shadow-[0_20px_50px_-30px_rgba(15,23,42,0.9)]'
-                    : 'text-slate-300 hover:bg-slate-900/80 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
-                    <span className="text-sm font-medium leading-tight">{item.label}</span>
-                  </div>
-                  {item.badge ? (
-                    <span className="rounded-full bg-red-500 px-2 py-1 text-[11px] font-semibold text-white">{item.badge}</span>
-                  ) : null}
+            {/* Navigation */}
+            <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-6 scrollbar-hide overflow-x-hidden">
+                <div className="px-3">
+                    <a href="#" onClick={() => setIsMobileOpen(false)} className="flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-[#F0FAFB] to-[#E6F0F9] text-[#004797] rounded-xl font-bold text-sm shadow-sm border border-[#D9EAF5] group relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#21BBD7] rounded-l-xl"></div>
+                        <Home className="w-5 h-5 shrink-0" />
+                        <span className={`transition-all duration-300 whitespace-nowrap origin-left ${isDesktopCollapsed ? 'md:opacity-0 md:scale-0 md:w-0' : 'opacity-100 scale-100 w-auto'}`}>
+                            Dashboard
+                        </span>
+                    </a>
                 </div>
-              </button>
-            );
-          })}
-        </div>
 
-        <div className="mt-7 border-t border-slate-800 pt-5">
-          <div className="space-y-2">
-            {bottomMenuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeItem === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavigation(item.id, item.label)}
-                  className={`w-full rounded-3xl px-4 py-3 text-left transition-all duration-200 ${
-                    isActive
-                      ? 'bg-slate-800 text-white'
-                      : 'text-slate-400 hover:bg-slate-900/80 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="h-5 w-5" />
-                    <span className="text-sm font-medium leading-tight">{item.label}</span>
-                  </div>
-                </button>
-              );
-            })}
+                {menuGroups.map((group, idx) => (
+                    <div key={idx} className="flex flex-col">
+                        <div className={`px-6 mb-2 text-xs font-bold text-gray-400 tracking-wider whitespace-nowrap transition-all duration-300 ${isDesktopCollapsed ? 'md:opacity-0 md:h-0 overflow-hidden' : 'opacity-100 h-auto'}`}>
+                            {group.title}
+                        </div>
+                        <div className="space-y-1 px-3">
+                            {group.items.map((item, i) => {
+                                const Icon = item.icon;
+                                return (
+                                    <a key={i} href="#" onClick={() => setIsMobileOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-gray-500 hover:bg-gray-50 hover:text-[#004797] rounded-xl text-sm font-medium transition-all group relative">
+                                        <Icon className="w-5 h-5 shrink-0 group-hover:scale-110 transition-transform" />
+                                        <span className={`transition-all duration-300 whitespace-nowrap origin-left ${isDesktopCollapsed ? 'md:opacity-0 md:scale-0 md:w-0' : 'opacity-100 scale-100 w-auto'}`}>
+                                            {item.label}
+                                        </span>
+                                        {/* Tooltip for desktop collapsed mode */}
+                                        {isDesktopCollapsed && (
+                                            <div className="hidden md:block absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50">
+                                                {item.label}
+                                            </div>
+                                        )}
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ))}
+            </div>
 
-            <button
-              onClick={handleLogout}
-              className="w-full rounded-3xl px-4 py-3 text-left text-red-400 transition-all duration-200 hover:bg-red-500/10 hover:text-red-200"
-            >
-              <div className="flex items-center gap-3">
-                <LogOut className="h-5 w-5" />
-                <span className="text-sm font-medium">Logout</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </nav>
-    </aside>
-  );
+            {/* Bottom Account Area */}
+            <div className="p-4 border-t border-gray-100 bg-gray-50 shrink-0 whitespace-nowrap overflow-hidden h-[73px]">
+                <div className={`transition-all duration-300 origin-left ${isDesktopCollapsed ? 'md:opacity-0 md:scale-0' : 'opacity-100 scale-100'}`}>
+                    <div className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Account ID</div>
+                    <div className="text-sm font-mono font-medium text-[#004797] bg-white px-2 py-1 rounded border border-gray-200 inline-block">SUP-000001</div>
+                </div>
+            </div>
+        </aside>
+    );
 };
 
 export default Sidebar;

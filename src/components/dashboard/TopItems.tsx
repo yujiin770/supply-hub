@@ -1,79 +1,57 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Package, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface TopItemsProps {
-  type: 'fast' | 'slow';
-  items: Array<{ name: string; orders: number }>;
+    type: 'fast' | 'slow';
+    items: Array<{ name: string; category: string; orders: number; orderCount: number }>;
 }
 
 const TopItems: React.FC<TopItemsProps> = ({ type, items }) => {
-  const isFast = type === 'fast';
-  
-  const handleItemClick = (itemName: string) => {
-    toast.info(`Viewing details for: ${itemName}`, {
-      duration: 3000,
-    });
-  };
+    const isFast = type === 'fast';
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.4 }}
-      className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          {isFast ? (
-            <TrendingUp className="w-5 h-5 text-green-600" />
-          ) : (
-            <TrendingDown className="w-5 h-5 text-orange-600" />
-          )}
-          <h3 className="text-lg font-semibold text-gray-900">
-            {isFast ? 'Fast-Moving Items' : 'Slow-Moving Items'}
-          </h3>
+    return (
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 p-6 h-full min-h-[200px]">
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${isFast ? 'bg-[#F0FAFB] text-[#21BBD7]' : 'bg-orange-50 text-orange-500'}`}>
+                        {isFast ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-800">
+                        {isFast ? 'Fast-Moving Items' : 'Slow-Moving Items'}
+                    </h3>
+                </div>
+            </div>
+
+            {items.length === 0 ? (
+                <div className="h-32 flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl">
+                    <p className="text-gray-400 text-sm font-medium">
+                        Not enough data available
+                    </p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {items.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${idx === 0 ? 'bg-[#004797] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                {idx + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="text-sm font-bold text-gray-800 truncate">{item.name}</div>
+                                <div className="text-xs text-gray-400 font-medium truncate">{item.category}</div>
+                                <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2">
+                                    <div className={`h-full rounded-full bg-gradient-to-r ${isFast ? 'from-[#21BBD7] to-[#004797]' : 'from-orange-400 to-red-500'}`} style={{ width: '100%' }}></div>
+                                </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                                <div className="text-lg font-extrabold text-[#004797] leading-none">{item.orders}</div>
+                                <div className="text-[10px] text-gray-400 font-bold uppercase mt-1">Orders</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
-        <span className="text-xs text-gray-500">Top {isFast ? '5' : '5'}</span>
-      </div>
-      
-      {items.length === 0 ? (
-        <div className="text-center py-8">
-          <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">
-            {isFast 
-              ? "Not enough data yet — need more than 5 distinct ordered items."
-              : "Not enough data to display slow-moving items"
-            }
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {items.map((item, idx) => (
-            <motion.button
-              key={idx}
-              whileHover={{ x: 5 }}
-              onClick={() => handleItemClick(item.name)}
-              className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
-            >
-              <div className="flex items-center gap-3 flex-1">
-                <span className="text-sm font-medium text-gray-400 w-6">{idx + 1}</span>
-                <Package className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors line-clamp-1">
-                  {item.name}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-900">{item.orders}</span>
-                <span className="text-xs text-gray-500">order{item.orders !== 1 ? 's' : ''}</span>
-              </div>
-            </motion.button>
-          ))}
-        </div>
-      )}
-    </motion.div>
-  );
+    );
 };
 
 export default TopItems;

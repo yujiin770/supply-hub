@@ -1,30 +1,18 @@
+// src/App.tsx
 import { useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
 import DashboardLayout from './components/layout/DashboardLayout';
-import Sidebar from './components/layout/Sidebar';
-import WelcomeHeader from './components/dashboard/WelcomeHeader';
 import StatsCard from './components/dashboard/StatsCard';
 import OrdersByStatus from './components/dashboard/OrdersByStatus';
 import StockOverview from './components/dashboard/StockOverview';
 import TopItems from './components/dashboard/TopItems';
 import LoadingSkeleton from './components/ui/LoadingSkeleton';
-import {
-  Clock,
-  UserCheck,
-  CreditCard,
-  CheckCircle,
-  Truck,
-  MapPin,
-  XCircle,
-  ShoppingBag,
-  Package,
-  Boxes
-} from 'lucide-react';
+import { Hourglass, Bell, CreditCard, CheckSquare, Truck, Package, X, ClipboardList, RefreshCw, Box, Building2 } from 'lucide-react';
 
 function App() {
   const [loading, setLoading] = useState(true);
 
-  // Mock data - replace with your actual data
+  // Mock data
   const stats = {
     pending: 0,
     awaitingConfirmation: 0,
@@ -45,33 +33,46 @@ function App() {
     'Cancelled': stats.cancelled
   };
 
-  const totalOrders = Object.values(ordersByStatus).reduce((a, b) => a + b, 0);
-  const activeOrders = totalOrders - stats.cancelled;
-
-  // Simulate loading data
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1200);
-
+    }, 800);
     return () => clearTimeout(timer);
   }, []);
+
 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="space-y-6">
-          <div className="h-32 bg-gray-100 rounded-3xl animate-pulse"></div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-7 gap-3">
-            <LoadingSkeleton type="stats" count={7} />
+        {/* Header Skeleton */}
+        <div className="mb-8">
+          <div className="h-8 bg-gray-200 rounded-md w-48 animate-pulse mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded-md w-72 animate-pulse"></div>
+        </div>
+
+        {/* Row 1: 7 Status Cards Skeleton */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+          <LoadingSkeleton type="status" count={7} />
+        </div>
+
+        {/* Row 2: 4 Summary Cards Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <LoadingSkeleton type="summary" count={4} />
+        </div>
+
+        {/* Row 3: Charts Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2">
+            <LoadingSkeleton type="chart" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <LoadingSkeleton type="stats" count={4} />
+          <div className="lg:col-span-1">
+            <LoadingSkeleton type="chart" />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <LoadingSkeleton type="orders" />
-            <LoadingSkeleton type="stock" />
-          </div>
+        </div>
+
+        {/* Row 4: Top Items Lists Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+          <LoadingSkeleton type="list" count={2} />
         </div>
       </DashboardLayout>
     );
@@ -81,56 +82,52 @@ function App() {
     <DashboardLayout>
       <Toaster position="top-right" richColors />
 
-      <div className="lg:grid lg:grid-cols-[280px_1fr] gap-6">
-        <aside className="sticky top-6 self-start w-full max-w-[280px] rounded-[32px]">
-          <Sidebar />
-        </aside>
+      <div className="mb-8">
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Overview</h1>
+        <p className="text-sm text-gray-500 font-medium mt-1">
+          Here is the latest summary of your operations.
+        </p>
+      </div>
 
-        <main className="space-y-6">
-          <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-3xl font-semibold text-slate-900">Dashboard</h1>
-                <p className="mt-2 text-sm text-slate-500">
-                  Welcome back, <span className="font-semibold text-slate-900">Lander Gallego Ambito</span>. Here's your overview.
-                </p>
-              </div>
-              <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600">
-                Acting as supplier: <span className="font-semibold text-slate-900">Lander Gallego Ambito</span>
-              </div>
-            </div>
-          </div>
+      {/* Row 1: Status Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+        <StatsCard title="Pending" value={stats.pending} icon={Hourglass} variant="status" />
+        <StatsCard title="To Confirm" value={stats.awaitingConfirmation} icon={Bell} variant="status" />
+        <StatsCard title="To Pay" value={stats.awaitingPayment} icon={CreditCard} variant="status" />
+        <StatsCard title="Confirmed" value={stats.confirmed} icon={CheckSquare} variant="status" />
+        <StatsCard title="Shipped" value={stats.shipped} icon={Truck} variant="status" />
+        <StatsCard title="Delivered" value={stats.delivered} icon={Package} variant="status" />
+        <StatsCard title="Cancelled" value={stats.cancelled} icon={X} variant="status" />
+      </div>
 
-          <WelcomeHeader name="Lander Gallego Ambito" />
+      {/* Row 2: Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <StatsCard title="TOTAL ORDERS" value={2} subtitle="All statuses combined" icon={ClipboardList} variant="summary" />
+        <StatsCard title="ACTIVE ORDERS" value={2} subtitle="Excl. cancelled" icon={RefreshCw} variant="summary" />
+        <StatsCard title="CATALOG ITEMS" value={2} subtitle="Total listings" icon={Box} variant="summary" />
+        <StatsCard title="STOCK UNITS" value={0} subtitle="Sum of stock_qty" icon={Building2} variant="summary" />
+      </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-7 gap-3">
-            <StatsCard title="Pending" value={stats.pending} icon={Clock} color="text-amber-600" bgColor="bg-amber-50" variant="small" />
-            <StatsCard title="Awaiting Your Confirmation" value={stats.awaitingConfirmation} icon={UserCheck} color="text-orange-600" bgColor="bg-orange-50" variant="small" />
-            <StatsCard title="Awaiting Payment" value={stats.awaitingPayment} icon={CreditCard} color="text-violet-600" bgColor="bg-violet-50" variant="small" />
-            <StatsCard title="Confirmed" value={stats.confirmed} icon={CheckCircle} color="text-emerald-600" bgColor="bg-emerald-50" variant="small" />
-            <StatsCard title="Shipped" value={stats.shipped} icon={Truck} color="text-sky-600" bgColor="bg-sky-50" variant="small" />
-            <StatsCard title="Delivered" value={stats.delivered} icon={MapPin} color="text-emerald-700" bgColor="bg-emerald-50" variant="small" />
-            <StatsCard title="Cancelled" value={stats.cancelled} icon={XCircle} color="text-red-600" bgColor="bg-red-50" variant="small" />
-          </div>
+      {/* Row 3: Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <OrdersByStatus orders={ordersByStatus} />
+        </div>
+        <div className="lg:col-span-1">
+          <StockOverview hasStock={0} noStock={2} disabled={0} />
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-            <StatsCard title="Total Orders" value={totalOrders} icon={ShoppingBag} color="text-slate-900" bgColor="bg-slate-50" />
-            <StatsCard title="Active Orders" value={activeOrders} icon={Package} color="text-green-600" bgColor="bg-emerald-50" />
-            <StatsCard title="Catalog Items" value={2} icon={Boxes} color="text-purple-600" bgColor="bg-purple-50" />
-            <StatsCard title="Total Stock Units" value={0} icon={Package} color="text-orange-600" bgColor="bg-orange-50" />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <OrdersByStatus orders={ordersByStatus} />
-            <StockOverview hasStock={0} noStock={2} disabled={0} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TopItems type="fast" items={[{ name: 'Care Adult Diaper L S5 Hygiene Device', orders: 5 }]} />
-            <TopItems type="slow" items={[]} />
-          </div>
-        </main>
-    </div>
+      {/* Row 4: Top Items */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+        <TopItems 
+          type="fast" 
+          items={[
+            { name: 'Care Adult Diaper L 5S', category: 'Hygiene Device', orders: 5, orderCount: 1 }
+          ]} 
+        />
+        <TopItems type="slow" items={[]} />
+      </div>
     </DashboardLayout>
   );
 }

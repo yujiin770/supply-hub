@@ -1,76 +1,90 @@
+// src/components/ui/LoadingSkeleton.tsx
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface LoadingSkeletonProps {
-  type?: 'card' | 'stats' | 'orders' | 'stock';
+  type: 'status' | 'summary' | 'chart' | 'list';
   count?: number;
 }
 
-const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ type = 'card', count = 1 }) => {
+const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ type, count = 1 }) => {
   const skeletons = Array(count).fill(0);
 
   const renderSkeleton = () => {
     switch (type) {
-      case 'stats':
+      case 'status': // Matches the 7 small top cards
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-3 flex-1">
-                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-                <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
-              </div>
-              <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] h-32 flex flex-col justify-between">
+            <div className="w-10 h-10 rounded-xl bg-gray-100 animate-pulse" />
+            <div className="mt-2 space-y-2">
+              <div className="h-6 bg-gray-100 rounded-md w-12 animate-pulse" />
+              <div className="h-3 bg-gray-100 rounded-md w-20 animate-pulse" />
             </div>
           </div>
         );
-      
-      case 'orders':
+
+      case 'summary': // Matches the 4 middle summary cards
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="h-6 bg-gray-200 rounded w-40 mb-4 animate-pulse"></div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] h-[124px]">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-4 h-4 rounded-full bg-gray-100 animate-pulse" />
+              <div className="h-3 bg-gray-100 rounded-md w-24 animate-pulse" />
+            </div>
+            <div className="h-8 bg-gray-100 rounded-md w-16 animate-pulse" />
+            <div className="mt-3 h-3 bg-gray-100 rounded-md w-28 animate-pulse" />
+          </div>
+        );
+
+      case 'chart': // Matches the Orders By Status / Stock Overview
+        return (
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] h-full min-h-[300px] flex flex-col">
+            <div className="flex justify-between items-center mb-8">
+              <div className="h-5 bg-gray-100 rounded-md w-40 animate-pulse" />
+              <div className="h-6 bg-gray-100 rounded-lg w-20 animate-pulse" />
+            </div>
+            <div className="space-y-6 flex-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <div className="h-4 bg-gray-100 rounded-md w-32 animate-pulse" />
+                  <div className="h-3 bg-gray-100 rounded-full flex-1 animate-pulse" />
+                  <div className="h-4 bg-gray-100 rounded-md w-8 animate-pulse" />
+                </div>
               ))}
             </div>
           </div>
         );
-      
-      case 'stock':
+
+      case 'list': // Matches Fast/Slow Moving Items
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="h-6 bg-gray-200 rounded w-32 mb-4 animate-pulse"></div>
-            <div className="space-y-3">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] h-full min-h-[250px]">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-8 h-8 rounded-lg bg-gray-100 animate-pulse" />
+              <div className="h-5 bg-gray-100 rounded-md w-40 animate-pulse" />
+            </div>
+            <div className="space-y-5">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-gray-200 rounded-lg animate-pulse"></div>
+                <div key={i} className="flex gap-4 items-center">
+                  <div className="w-6 h-6 rounded-full bg-gray-100 animate-pulse shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-100 rounded-md w-3/4 animate-pulse" />
+                    <div className="h-3 bg-gray-100 rounded-md w-1/2 animate-pulse" />
+                  </div>
+                  <div className="h-6 bg-gray-100 rounded-md w-10 animate-pulse" />
+                </div>
               ))}
             </div>
-          </div>
-        );
-      
-      default:
-        return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-3 animate-pulse"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/2 animate-pulse"></div>
           </div>
         );
     }
   };
 
+  if (count === 1) return renderSkeleton();
+
   return (
-    <div className="space-y-4">
+    <>
       {skeletons.map((_, idx) => (
-        <motion.div
-          key={idx}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: idx * 0.1 }}
-        >
-          {renderSkeleton()}
-        </motion.div>
+        <React.Fragment key={idx}>{renderSkeleton()}</React.Fragment>
       ))}
-    </div>
+    </>
   );
 };
 
