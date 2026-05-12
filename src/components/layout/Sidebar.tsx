@@ -1,5 +1,4 @@
-﻿// src/components/layout/Sidebar.tsx
-import React from 'react';
+﻿import React from 'react';
 import { Home, FileText, ClipboardList, BookOpen, Upload, Clock, ShoppingBag, Building2 } from 'lucide-react';
 
 interface SidebarProps {

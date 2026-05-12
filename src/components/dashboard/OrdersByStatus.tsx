@@ -54,5 +54,4 @@ const OrdersByStatus: React.FC<OrdersByStatusProps> = ({ orders }) => {
         </div>
     );
 };
-
 export default OrdersByStatus;

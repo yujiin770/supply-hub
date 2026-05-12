@@ -82,7 +82,7 @@ function App() {
       <Toaster position="top-right" richColors />
 
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Overview</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Dashboard</h1>
         <p className="text-sm text-gray-500 font-medium mt-1">
           Here is the latest summary of your operations.
         </p>

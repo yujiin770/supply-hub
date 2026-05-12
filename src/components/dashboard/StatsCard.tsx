@@ -13,7 +13,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, subtitle, icon: Ico
     if (variant === 'status') {
         return (
             <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-32 group">
-                <div className="w-10 h-10 rounded-xl bg-[#F0FAFB] text-[#21BBD7]  flex items-center justify-center transition-colors">
+                <div className="w-10 h-10 rounded-full  text-[#004797]  flex items-center justify-between transition-colors">
                     <Icon className="w-5 h-5" />
                 </div>
                 <div className="mt-2">
