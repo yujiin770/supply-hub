@@ -1,6 +1,6 @@
 ﻿// src/components/layout/Sidebar.tsx
 import React from 'react';
-import { Home, FileText, BookOpen, Upload, Clock, ShoppingBag } from 'lucide-react';
+import { Home, FileText, ClipboardList, BookOpen, Upload, Clock, ShoppingBag, Building2 } from 'lucide-react';
 
 interface SidebarProps {
     isDesktopCollapsed: boolean;
@@ -13,8 +13,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isDesktopCollapsed, isMobileOpen, set
         {
             title: 'ONBOARDING',
             items: [
-                { label: 'Overview', icon: FileText, active: false },
-                { label: 'KYC Documents', icon: FileText, active: false },
+                { label: 'Overview', icon: ClipboardList, active: false },
+                { label: 'KYC Documents', icon: Building2, active: false },
             ]
         },
         {
@@ -44,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDesktopCollapsed, isMobileOpen, set
                 w-64
             `}
         >
-            {/* Logo Area - With Smooth Crossfade Transition */}
+            {/* Logo Area - Crossfade Transition */}
             <div className="h-16 flex items-center justify-center border-b border-gray-100 px-4 shrink-0 whitespace-nowrap overflow-hidden relative">
                 {/* Full Logo (Shows when expanded) */}
                 <img
@@ -53,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDesktopCollapsed, isMobileOpen, set
                     className={`absolute transition-all duration-300 object-contain w-40 ${isDesktopCollapsed ? 'opacity-0 scale-90 pointer-events-none md:block hidden' : 'opacity-100 scale-100'}`}
                 />
                 
-                {/* Small Logo Icon (Shows when collapsed) - SAVE THIS AS "logo-icon.png" in public folder */}
+                {/* Small Logo Icon (Shows when collapsed) */}
                 <img
                     src="/logo-icon.png"  
                     alt="SupplyHub Icon"
@@ -82,17 +82,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isDesktopCollapsed, isMobileOpen, set
                             {group.items.map((item, i) => {
                                 const Icon = item.icon;
                                 return (
-                                    <a key={i} href="#" onClick={() => setIsMobileOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-gray-500 hover:bg-gray-50 hover:text-[#004797] rounded-xl text-sm font-medium transition-all group relative">
+                                    <a key={i} href="#" onClick={() => setIsMobileOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-gray-500 hover:bg-gray-50 hover:text-[#004797] rounded-xl text-sm font-medium transition-all group">
                                         <Icon className="w-5 h-5 shrink-0 group-hover:scale-110 transition-transform" />
                                         <span className={`transition-all duration-300 whitespace-nowrap origin-left ${isDesktopCollapsed ? 'md:opacity-0 md:scale-0 md:w-0' : 'opacity-100 scale-100 w-auto'}`}>
                                             {item.label}
                                         </span>
-                                        {/* Tooltip for desktop collapsed mode */}
-                                        {isDesktopCollapsed && (
-                                            <div className="hidden md:block absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50">
-                                                {item.label}
-                                            </div>
-                                        )}
                                     </a>
                                 );
                             })}

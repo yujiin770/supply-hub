@@ -26,7 +26,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, subtitle, icon: Ico
 
     return (
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#21BBD7]/10 to-transparent rounded-bl-full -mr-4 -mt-4"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 from-[#21BBD7]/10 to-transparent rounded-bl-full -mr-4 -mt-4"></div>
             <div className="flex items-center gap-2 mb-4 relative z-10">
                 <Icon className="w-4 h-4 text-[#004797]" />
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{title}</span>

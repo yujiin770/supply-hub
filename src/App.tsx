@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
 import DashboardLayout from './components/layout/DashboardLayout';
