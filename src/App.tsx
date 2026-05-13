@@ -1,3 +1,4 @@
+// src/App.tsx
 import { useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -6,7 +7,7 @@ import OrdersByStatus from './components/dashboard/OrdersByStatus';
 import StockOverview from './components/dashboard/StockOverview';
 import TopItems from './components/dashboard/TopItems';
 import LoadingSkeleton from './components/ui/LoadingSkeleton';
-import { Hourglass, Bell, CreditCard, CheckSquare, Truck, Package, X, ClipboardList, RefreshCw, Box, Building2 } from 'lucide-react';
+import { ClipboardList, RefreshCw, Box, Building2 } from 'lucide-react';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -49,17 +50,12 @@ function App() {
           <div className="h-4 bg-gray-200 rounded-md w-72 animate-pulse"></div>
         </div>
 
-        {/* Row 1: 7 Status Cards Skeleton */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-          <LoadingSkeleton type="status" count={7} />
-        </div>
-
-        {/* Row 2: 4 Summary Cards Skeleton */}
+        {/* Row 1: 4 Summary Cards Skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           <LoadingSkeleton type="summary" count={4} />
         </div>
 
-        {/* Row 3: Charts Skeleton */}
+        {/* Row 2: Charts Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
             <LoadingSkeleton type="chart" />
@@ -69,7 +65,7 @@ function App() {
           </div>
         </div>
 
-        {/* Row 4: Top Items Lists Skeleton */}
+        {/* Row 3: Top Items Lists Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
           <LoadingSkeleton type="list" count={2} />
         </div>
@@ -82,24 +78,13 @@ function App() {
       <Toaster position="top-right" richColors />
 
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Overview</h1>
         <p className="text-sm text-gray-500 font-medium mt-1">
           Here is the latest summary of your operations.
         </p>
       </div>
 
-      {/* Row 1: Status Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-        <StatsCard title="Pending" value={stats.pending} icon={Hourglass} variant="status" />
-        <StatsCard title="To Confirm" value={stats.awaitingConfirmation} icon={Bell} variant="status" />
-        <StatsCard title="To Pay" value={stats.awaitingPayment} icon={CreditCard} variant="status" />
-        <StatsCard title="Confirmed" value={stats.confirmed} icon={CheckSquare} variant="status" />
-        <StatsCard title="Shipped" value={stats.shipped} icon={Truck} variant="status" />
-        <StatsCard title="Delivered" value={stats.delivered} icon={Package} variant="status" />
-        <StatsCard title="Cancelled" value={stats.cancelled} icon={X} variant="status" />
-      </div>
-
-      {/* Row 2: Summary Cards */}
+      {/* Row 1: Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <StatsCard title="TOTAL ORDERS" value={2} subtitle="All statuses combined" icon={ClipboardList} variant="summary" />
         <StatsCard title="ACTIVE ORDERS" value={2} subtitle="Excl. cancelled" icon={RefreshCw} variant="summary" />
@@ -107,7 +92,7 @@ function App() {
         <StatsCard title="STOCK UNITS" value={0} subtitle="Sum of stock_qty" icon={Building2} variant="summary" />
       </div>
 
-      {/* Row 3: Charts */}
+      {/* Row 2: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2">
           <OrdersByStatus orders={ordersByStatus} />
@@ -117,7 +102,7 @@ function App() {
         </div>
       </div>
 
-      {/* Row 4: Top Items */}
+      {/* Row 3: Top Items */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
         <TopItems 
           type="fast" 

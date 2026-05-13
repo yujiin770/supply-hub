@@ -31,7 +31,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, subtitle, icon: Ico
                 <Icon className="w-4 h-4 text-[#004797]" />
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{title}</span>
             </div>
-            <div className="text-4xl font-extrabold text-[#004797] relative z-10">{value}</div>
+            <div className="text-4xl font-extrabold text-black relative z-10">{value}</div>
             {subtitle && <div className="text-xs text-gray-500 mt-2 font-medium relative z-10">{subtitle}</div>}
         </div>
     );

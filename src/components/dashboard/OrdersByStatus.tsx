@@ -31,7 +31,7 @@ const OrdersByStatus: React.FC<OrdersByStatusProps> = ({ orders }) => {
                 {statuses.map((status) => {
                     const count = orders[status.label] || orders['Awaiting Your Confirmation'] || 0; // fallback for naming mismatch
                     const actualCount = status.label === 'Awaiting Confirmation' ? orders['Awaiting Your Confirmation'] : orders[status.label] || 0;
-                    const width = totalOrders === 0 ? 0 : (actualCount / totalOrders) * 100;
+                    const width = totalOrders === 0 ? 0 : (actualCount / totalOrders) * 100; 
                     const Icon = status.icon;
 
                     return (

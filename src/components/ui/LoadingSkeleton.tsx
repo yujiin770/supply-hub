@@ -1,4 +1,3 @@
-// src/components/ui/LoadingSkeleton.tsx
 import React from 'react';
 
 interface LoadingSkeletonProps {
