@@ -80,7 +80,7 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
                             <div className="text-sm font-bold text-gray-900 leading-none">Mico Echaure</div>
                             <div className="text-[10px] font-bold text-blue-500 uppercase mt-1 tracking-wider">Super Admin</div>
                         </div>
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#004797] to-[#21BBD7] flex items-center justify-center text-white font-bold text-xs shadow-md">
+                        <div className="w-9 h-9 rounded-full bg-linear-to-tr from-[#004797] to-[#21BBD7] flex items-center justify-center text-white font-bold text-xs shadow-md">
                             ME
                         </div>
                     </div>
@@ -90,7 +90,7 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
                 </div>
             </nav>
 
-            <main className="max-w-[1400px] mx-auto pt-6 sm:pt-10 px-4 sm:px-6 pb-20">
+            <main className="max-w-350 mx-auto pt-6 sm:pt-10 px-4 sm:px-6 pb-20">
 
                 {/* --- Hero Section --- */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10">
