@@ -9,25 +9,31 @@ interface SidebarProps {
     isMobileOpen: boolean;
     setIsMobileOpen: (val: boolean) => void;
     setIsDesktopCollapsed: (val: boolean) => void;
+    onNavigate: (view: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ 
-    isDesktopCollapsed, 
-    isMobileOpen, 
-    setIsMobileOpen, 
+const Sidebar: React.FC<SidebarProps> = ({
+    isDesktopCollapsed,
+    isMobileOpen,
+    setIsMobileOpen,
+    onNavigate
 }) => {
     const [activeItem, setActiveItem] = useState('Dashboard');
 
     const handleItemClick = (label: string) => {
         setActiveItem(label);
         setIsMobileOpen(false);
+
+        if (label === 'Dashboard') onNavigate('dashboard');
+        else if (label === 'Overview') onNavigate('overview');
+        else if (label === 'KYC Documents') onNavigate('kyc');
+        else if (label === 'My Catalog') onNavigate('catalog');
     };
 
     return (
         <>
-            {/* Mobile Backdrop */}
             {isMobileOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity cursor-pointer"
                     onClick={() => setIsMobileOpen(false)}
                 />
@@ -44,7 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 `}
             >
                 <SidebarLogo isDesktopCollapsed={isDesktopCollapsed} />
-                <SidebarNav 
+                <SidebarNav
                     activeItem={activeItem}
                     isDesktopCollapsed={isDesktopCollapsed}
                     onItemClick={handleItemClick}
