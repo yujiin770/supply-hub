@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Search, ChevronDown, ChevronUp, Plus, X, 
   ChevronRight, ChevronLeft, Filter as FilterIcon,
-  Check, Menu
+  Check
 } from 'lucide-react';
 
 interface BrowseItem {
@@ -135,7 +135,7 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const toggleRow = (id: string) => setExpandedId(expandedId === id ? null : id);
 
   return (
-    <div className="fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden font-sans">
+    <div className="fixed inset-0 bg-white z-100 flex flex-col overflow-hidden font-sans">
       
       {/* --- HEADER --- */}
       <header className="h-16 border-b border-gray-100 flex items-center px-4 md:px-6 gap-4 shrink-0 bg-white">
@@ -171,11 +171,11 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         
         {/* --- SIDEBAR FILTERS (Slide-in on mobile) --- */}
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black/40 z-[80] lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 z-80 lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
         )}
         
         <aside className={`
-          fixed inset-y-0 left-0 z-[90] w-72 bg-white border-r border-gray-100 transition-transform duration-300 lg:relative lg:translate-x-0 lg:z-0 lg:w-64 flex flex-col
+          fixed inset-y-0 left-0 z-90 w-72 bg-white border-r border-gray-100 transition-transform duration-300 lg:relative lg:translate-x-0 lg:z-0 lg:w-64 flex flex-col
           ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
         `}>
           <div className="p-5 flex items-center justify-between lg:hidden border-b border-gray-100">
@@ -212,7 +212,7 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <main className="flex-1 flex flex-col min-w-0 bg-white overflow-hidden">
           
           <div className="px-4 md:px-6 py-5 border-b border-gray-50 flex items-center justify-between shrink-0 bg-white">
-             <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.1em]">
+             <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">
                 50 <span className="text-gray-400">/ 165 ON PAGE</span>
              </p>
              <button className="bg-[#00925d] hover:bg-[#007a4e] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-md flex items-center gap-2">
@@ -221,7 +221,7 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </div>
 
           <div className="flex-1 overflow-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[1200px]">
+            <table className="w-full text-left border-collapse min-w-300">
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                   <th className="px-6 py-4">BRAND NAME</th>

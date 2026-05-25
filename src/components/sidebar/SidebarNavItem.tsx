@@ -24,7 +24,7 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
                 transition-all duration-200 group relative cursor-pointer
                 ${isDesktopCollapsed ? 'md:justify-center' : ''}
                 ${isActive 
-                    ? 'bg-gradient-to-r from-[#F0FAFB] to-[#E6F0F9] text-[#004797] shadow-sm border border-[#D9EAF5]' 
+                    ? 'bg-linear-to-r from-[#F0FAFB] to-[#E6F0F9] text-[#004797] shadow-sm border border-[#D9EAF5]' 
                     : 'text-gray-500 hover:bg-gray-50 hover:text-[#004797]'
                 }
             `}
