@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  Search, ChevronDown, ChevronUp, Plus, Check, X, 
-  ChevronRight, ChevronLeft, Filter as FilterIcon 
+  Search, ChevronDown, ChevronUp, Plus, X, 
+  ChevronRight, ChevronLeft, Filter as FilterIcon,
+  Check, Menu
 } from 'lucide-react';
 
 interface BrowseItem {
@@ -15,183 +16,306 @@ interface BrowseItem {
   sku: string;
   route: string;
   status: string;
+  packId: string;
   added?: boolean;
+  activeIngredients: { name: string; strength: string }[];
+  indication: string;
 }
 
 const BROWSE_DATA: BrowseItem[] = [
-  { id: '1', brandName: 'AA-Cetirizine-478', strength: 'Cetirizine 10 mg', form: 'Syrup', packSize: '60.0000 mL', manufacturer: 'AstraZeneca plc', barcode: '4805441005531', sku: 'UNILAB-CETIRIZINE-478', route: 'Oral', status: 'Active', added: true },
-  { id: '2', brandName: 'Absolute Distilled Water', strength: 'Purified Water 1000 mL', form: 'Not Applicable', packSize: '12.0000 L', manufacturer: 'Bayer Philippines', barcode: '480000000003', sku: 'BAY-WATER-001', route: 'Not Applicable', status: 'Active' },
-  { id: '3', brandName: 'Alaxan FR', strength: 'ibuprofen 200 mg + paracetamol 325 mg', form: 'Tablet', packSize: '100.0000 tab', manufacturer: 'Unilab Inc.', barcode: '4800016012345', sku: 'UNI-ALX-FR', route: 'Oral', status: 'Active' },
+  { 
+    id: '1', 
+    brandName: 'AA-Cetirizine-478', 
+    strength: 'Cetirizine 10 mg', 
+    form: 'Syrup', 
+    packSize: '60.0000 mL', 
+    manufacturer: 'AstraZeneca plc', 
+    barcode: '4805441005531', 
+    sku: 'UNILAB-CETIRIZINE-478', 
+    route: 'Oral', 
+    status: 'Active', 
+    packId: '79a8bee4-fb88-4829-94df-a24d6f093b3b',
+    added: true,
+    activeIngredients: [{ name: 'Cetirizine', strength: '10 mg' }],
+    indication: 'Cetirizine indicated for allergic rhinitis and urticaria'
+  },
+  { 
+    id: '2', 
+    brandName: 'Absolute Distilled Water', 
+    strength: 'Purified Water 1000 mL', 
+    form: 'Not Applicable', 
+    packSize: '12.0000 L', 
+    manufacturer: 'Bayer Philippines', 
+    barcode: '480000000003', 
+    sku: 'BAY-WATER-001', route: 'Not Applicable', status: 'Active', packId: 'abs-water-1',
+    activeIngredients: [{ name: 'Purified Water', strength: '1000 mL' }],
+    indication: 'Safe drinking water.'
+  },
+  { 
+    id: '3', 
+    brandName: 'Absolute Distilled Water ggg', 
+    strength: 'Clopidogrel Bisulfate 123 amp', 
+    form: 'Inhaler (MDI)', 
+    packSize: '12.0000 mmol', 
+    manufacturer: 'Novartis AG', 
+    barcode: '4800675013567', 
+    sku: 'NOV-CLOP-001', route: 'Inhalation', status: 'Active', packId: 'clop-001',
+    activeIngredients: [{ name: 'Clopidogrel Bisulfate', strength: '123 amp' }],
+    indication: 'Respiratory management.'
+  },
+  { 
+    id: '4', 
+    brandName: 'Alaxan FR', 
+    strength: 'ibuprofen 200 mg + paracetamol 325 mg', 
+    form: 'Tablet', 
+    packSize: '100.0000 tab', 
+    manufacturer: 'Unilab Inc.', 
+    barcode: '4800016012345', 
+    sku: 'UNI-ALX-100', route: 'Oral', status: 'Active', packId: '99b4b18f-764f-4434-a07c-83e5c93e870d',
+    activeIngredients: [{ name: 'Ibuprofen', strength: '200 mg' }, { name: 'Paracetamol', strength: '325 mg' }],
+    indication: 'Pain reliever with anti-inflammatory'
+  },
+  { 
+    id: '5', 
+    brandName: 'Alaxan FR', 
+    strength: 'ibuprofen 200 mg + paracetamol 325 mg', 
+    form: 'Tablet', 
+    packSize: '1.0000 tab', 
+    manufacturer: 'Unilab Inc.', 
+    barcode: '4808930500593', 
+    sku: 'PLK-PQFVC3EH', 
+    route: 'Oral', 
+    status: 'Active', 
+    packId: '99b4b18f-764f-4434-a07c-83e5c93e870d',
+    activeIngredients: [{ name: 'Ibuprofen', strength: '200 mg' }, { name: 'Paracetamol', strength: '325 mg' }],
+    indication: 'Pain reliever with anti-inflammatory'
+  },
+  { 
+    id: '6', 
+    brandName: 'Albatross Refill Sweet Marmalade', 
+    strength: 'Sweet Marmalade 50 g', 
+    form: 'Not Applicable', 
+    packSize: '1.0000 pack', 
+    manufacturer: 'Unknown', 
+    barcode: '480000000006', 
+    sku: 'ALB-MAR-01', route: 'Not Applicable', status: 'Active', packId: 'alb-marm-1',
+    activeIngredients: [{ name: 'Sweet Marmalade', strength: '50 g' }],
+    indication: 'Fragrance refill.'
+  },
+  { 
+    id: '7', 
+    brandName: 'Altbatross Kiwi Candy Holder', 
+    strength: 'Sugar 100 g', 
+    form: 'Not Applicable', 
+    packSize: '999.0000 g', 
+    manufacturer: 'Unknown', 
+    barcode: '480000000005', 
+    sku: 'ALT-KIWI-01', route: 'Not Applicable', status: 'Active', packId: 'alt-kiwi-1',
+    activeIngredients: [{ name: 'Sugar', strength: '100 g' }],
+    indication: 'Confectionery.'
+  },
+  { 
+    id: '8', 
+    brandName: 'Aluminum Hydroxide + Magnesium Hydroxide', 
+    strength: 'Aluminum Hydroxide 200 mg + Magnesium Hydroxide 100 mg', 
+    form: 'Tablet', 
+    packSize: '10.0000 tab', 
+    manufacturer: 'Generic Manufacturer', 
+    barcode: '480000000002', 
+    sku: 'GEN-ANT-01', route: 'Oral', status: 'Active', packId: 'gen-ant-1',
+    activeIngredients: [{ name: 'Aluminum Hydroxide', strength: '200 mg' }, { name: 'Magnesium Hydroxide', strength: '100 mg' }],
+    indication: 'Antacid relief.'
+  },
 ];
 
 const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>('5'); // Default open Alaxan like image
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleRow = (id: string) => setExpandedId(expandedId === id ? null : id);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col h-screen overflow-hidden">
+    <div className="fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden font-sans">
       
-      {/* --- TOP NAVIGATION BAR --- */}
-      <header className="bg-white border-b border-gray-100 min-h-[64px] flex items-center px-4 sm:px-6 sticky top-0 z-[60] gap-4 shrink-0">
-        <h2 className="text-lg font-extrabold text-gray-900 shrink-0 hidden sm:block">Browse Catalog</h2>
-        
-        <div className="relative flex-1 max-w-2xl group">
+      {/* --- HEADER --- */}
+      <header className="h-16 border-b border-gray-100 flex items-center px-4 md:px-6 gap-4 shrink-0 bg-white">
+        {/* Burger Button for Mobile Filters */}
+        <button 
+          onClick={() => setIsSidebarOpen(true)}
+          className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg border border-gray-100"
+        >
+          <FilterIcon className="w-5 h-5" />
+        </button>
+
+        <div className="flex-1 max-w-2xl relative group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
           <input 
             type="text" 
-            placeholder="Search brand name, INN, barcode..." 
-            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+            placeholder="Search brand name, INN, barcode, SKU" 
+            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-xl text-sm font-bold focus:bg-white focus:border-blue-100 outline-none transition-all"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setIsSidebarOpen(true)}
-            className="lg:hidden p-2.5 bg-gray-100 text-gray-600 rounded-xl"
-          >
-            <FilterIcon className="w-5 h-5" />
-          </button>
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full">
-            <X className="w-5 h-5 text-gray-400" />
-          </button>
+            <div className="hidden sm:flex items-center gap-1 text-[11px] font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer">
+                <span>Brand A-Z</span>
+                <ChevronDown className="w-4 h-4" />
+            </div>
+            <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                <X className="w-6 h-6 text-gray-400" />
+            </button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
         
-        {/* --- RESPONSIVE SIDEBAR (Overlay on Mobile, Sidebar on Desktop) --- */}
+        {/* --- SIDEBAR FILTERS (Slide-in on mobile) --- */}
         {isSidebarOpen && (
-            <div className="fixed inset-0 bg-black/40 z-[70] lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 z-[80] lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
         )}
+        
         <aside className={`
-          fixed inset-y-0 left-0 z-[80] w-72 bg-white border-r border-gray-100 transition-transform duration-300 transform
-          lg:relative lg:translate-x-0 lg:z-0 lg:w-64
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          fixed inset-y-0 left-0 z-[90] w-72 bg-white border-r border-gray-100 transition-transform duration-300 lg:relative lg:translate-x-0 lg:z-0 lg:w-64 flex flex-col
+          ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
         `}>
-          <div className="p-6 space-y-8 overflow-y-auto h-full custom-scrollbar">
-            <div className="flex items-center justify-between lg:hidden mb-4">
-              <span className="font-bold text-gray-900">Filters</span>
-              <button onClick={() => setIsSidebarOpen(false)} className="p-2"><X className="w-5 h-5" /></button>
-            </div>
-            
-            <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-blue-50 transition-colors">
+          <div className="p-5 flex items-center justify-between lg:hidden border-b border-gray-100">
+             <span className="font-bold text-gray-900">Filters</span>
+             <button onClick={() => setIsSidebarOpen(false)}><X className="w-5 h-5" /></button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+            <label className="flex items-center gap-3 cursor-pointer group">
               <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
               <span className="text-xs font-bold text-gray-600">Not in my catalog</span>
             </label>
 
-            <div className="space-y-4">
-               <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest px-1">Dosage Form</h4>
-               <div className="space-y-2">
-                  {['Capsule', 'Inhaler', 'Lotion', 'Syrup', 'Tablet'].map(f => (
-                    <label key={f} className="flex items-center gap-3 px-1 cursor-pointer group">
-                      <input type="checkbox" className="w-4 h-4 rounded border-gray-200 text-blue-600" />
-                      <span className="text-xs font-medium text-gray-500 group-hover:text-gray-900">{f}</span>
+            {[
+                { title: 'DOSAGE FORM', items: ['Capsule', 'Chewable Tablet', 'Inhaler (MDI)', 'Lotion', 'Not Applicable', 'Suspension', 'Syrup', 'Tablet'] },
+                { title: 'ROUTE', items: ['Inhalation', 'Intrathecal', 'Not Applicable', 'Oral', 'Sublingual', 'Topical', 'Transdermal'] },
+                { title: 'MANUFACTURER', items: ['AstraZeneca plc', 'Bayer Philippines', 'Novartis AG', 'Unilab Inc.', 'GSK Philippines'] }
+            ].map((group) => (
+              <div key={group.title}>
+                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">{group.title}</h4>
+                <div className="space-y-3">
+                  {group.items.map(item => (
+                    <label key={item} className="flex items-center gap-3 cursor-pointer group">
+                      <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600" />
+                      <span className="text-xs font-bold text-gray-500 group-hover:text-gray-900 truncate">{item}</span>
                     </label>
                   ))}
-               </div>
-            </div>
+                </div>
+              </div>
+            ))}
           </div>
         </aside>
 
-        {/* --- MAIN TABLE AREA --- */}
-        <main className="flex-1 overflow-hidden flex flex-col">
-          <div className="p-4 sm:p-6 flex items-center justify-between shrink-0">
-             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.1em]">50 / 165 Products found</p>
-             <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/10 flex items-center gap-2">
-                <Plus className="w-4 h-4" /> Add all visible
+        {/* --- MAIN CONTENT --- */}
+        <main className="flex-1 flex flex-col min-w-0 bg-white overflow-hidden">
+          
+          <div className="px-4 md:px-6 py-5 border-b border-gray-50 flex items-center justify-between shrink-0 bg-white">
+             <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.1em]">
+                50 <span className="text-gray-400">/ 165 ON PAGE</span>
+             </p>
+             <button className="bg-[#00925d] hover:bg-[#007a4e] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-md flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Add all visible (49)
              </button>
           </div>
 
-          {/* TABLE CONTAINER WITH HORIZONTAL SCROLL */}
-          <div className="flex-1 overflow-auto custom-scrollbar px-4 sm:px-6">
-            <div className="bg-white border border-gray-100 rounded-[2rem] shadow-sm overflow-hidden mb-8">
-              <table className="w-full text-left border-collapse min-w-[1000px]">
-                <thead>
-                  <tr className="bg-gray-50/50 border-b border-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                    <th className="px-6 py-4">Brand Name</th>
-                    <th className="px-6 py-4">Strength / INN</th>
-                    <th className="px-6 py-4">Form</th>
-                    <th className="px-6 py-4">Pack Size</th>
-                    <th className="px-6 py-4">Manufacturer</th>
-                    <th className="px-6 py-4">Barcode</th>
-                    <th className="px-6 py-4 sticky right-0 bg-gray-50/90 backdrop-blur shadow-[-12px_0_15px_-4px_rgba(0,0,0,0.02)]"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {BROWSE_DATA.map((item) => (
-                    <React.Fragment key={item.id}>
-                      <tr 
-                        onClick={() => toggleRow(item.id)}
-                        className={`cursor-pointer transition-all ${expandedId === item.id ? 'bg-blue-50/40' : 'hover:bg-gray-50/50'}`}
-                      >
-                        <td className="px-6 py-5 text-sm font-extrabold text-gray-900">{item.brandName}</td>
-                        <td className="px-6 py-5 text-xs font-bold text-gray-500 whitespace-nowrap">{item.strength}</td>
-                        <td className="px-6 py-5 text-xs font-medium text-gray-400 uppercase">{item.form}</td>
-                        <td className="px-6 py-5 text-xs font-medium text-gray-400 whitespace-nowrap">{item.packSize}</td>
-                        <td className="px-6 py-5 text-xs font-medium text-gray-400 whitespace-nowrap">{item.manufacturer}</td>
-                        <td className="px-6 py-5 text-xs font-mono text-gray-400">{item.barcode}</td>
-                        <td className="px-6 py-5 text-right sticky right-0 bg-inherit transition-all shadow-[-12px_0_15px_-4px_rgba(0,0,0,0.02)]">
-                          <div className="flex items-center justify-end gap-3">
-                            {expandedId === item.id ? <ChevronUp className="w-4 h-4 text-blue-500" /> : <ChevronDown className="w-4 h-4 text-gray-300" />}
-                            {item.added ? (
-                              <span className="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase border border-emerald-100">Added</span>
-                            ) : (
-                              <button className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform"><Plus className="w-3.5 h-3.5" /></button>
-                            )}
+          <div className="flex-1 overflow-auto custom-scrollbar">
+            <table className="w-full text-left border-collapse min-w-[1200px]">
+              <thead>
+                <tr className="bg-gray-50/50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  <th className="px-6 py-4">BRAND NAME</th>
+                  <th className="px-6 py-4">STRENGTH / INN</th>
+                  <th className="px-6 py-4">FORM</th>
+                  <th className="px-6 py-4">PACK SIZE</th>
+                  <th className="px-6 py-4">MANUFACTURER</th>
+                  <th className="px-6 py-4">BARCODE</th>
+                  <th className="px-6 py-4"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {BROWSE_DATA.map((item) => (
+                  <React.Fragment key={item.id}>
+                    <tr 
+                      onClick={() => toggleRow(item.id)}
+                      className={`cursor-pointer transition-colors ${expandedId === item.id ? 'bg-[#f0f9ff]' : 'hover:bg-gray-50/50'}`}
+                    >
+                      <td className="px-6 py-5 text-sm font-bold text-gray-900">{item.brandName}</td>
+                      <td className="px-6 py-5 text-xs font-bold text-gray-400">{item.strength}</td>
+                      <td className="px-6 py-5 text-xs font-bold text-gray-400 uppercase">{item.form}</td>
+                      <td className="px-6 py-5 text-xs font-bold text-gray-400">{item.packSize}</td>
+                      <td className="px-6 py-5 text-xs font-bold text-gray-400">{item.manufacturer}</td>
+                      <td className="px-6 py-5 text-xs font-bold font-mono text-gray-300">{item.barcode}</td>
+                      <td className="px-6 py-5 text-right">
+                        <div className="flex items-center justify-end gap-5">
+                          {expandedId === item.id ? <ChevronUp className="w-4 h-4 text-[#00925d]" /> : <ChevronDown className="w-4 h-4 text-gray-300" />}
+                          {item.added ? (
+                            <div className="bg-emerald-50 text-[#00925d] px-3 py-1.5 rounded-lg text-[11px] font-bold border border-emerald-100 flex items-center gap-1.5">
+                               <Check className="w-3.5 h-3.5" /> Added
+                            </div>
+                          ) : (
+                            <button className="bg-[#00925d] text-white px-5 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
+                                <Plus className="w-4 h-4" /> Add
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* --- EXACT DATA EXPANDED VIEW --- */}
+                    {expandedId === item.id && (
+                      <tr className="bg-[#fcfdfe]">
+                        <td colSpan={7} className="px-10 py-10">
+                          <div className="grid grid-cols-4 gap-12">
+                            <div className="space-y-6">
+                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Pack ID</label><p className="text-xs text-gray-600 font-bold break-all">{item.packId}</p></div>
+                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Dosage Form</label><p className="text-xs text-gray-900 font-bold">{item.form}</p></div>
+                            </div>
+                            <div className="space-y-6">
+                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">SKU</label><p className="text-xs text-gray-600 font-bold">{item.sku}</p></div>
+                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Route</label><p className="text-xs text-gray-900 font-bold">{item.route}</p></div>
+                            </div>
+                            <div className="space-y-6">
+                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Barcode</label><p className="text-xs text-gray-600 font-bold">{item.barcode}</p></div>
+                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Manufacturer</label><p className="text-xs text-gray-900 font-bold">{item.manufacturer}</p></div>
+                            </div>
+                            <div className="space-y-6">
+                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Pack Size</label><p className="text-xs text-gray-900 font-bold">{item.packSize}</p></div>
+                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Status</label><div className="text-[11px] font-bold text-gray-900">{item.status}</div></div>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-10">
+                             <h4 className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-4">ACTIVE INGREDIENTS</h4>
+                             <div className="flex flex-wrap gap-2">
+                                {item.activeIngredients.map((ai, idx) => (
+                                    <div key={idx} className="bg-white px-4 py-2 rounded-full text-xs font-bold border border-gray-200 text-gray-900 flex items-center gap-2">
+                                        {ai.name} <span className="text-blue-400">{ai.strength}</span>
+                                    </div>
+                                ))}
+                             </div>
+                             <p className="mt-4 text-xs italic text-gray-400 font-bold">{item.indication}</p>
                           </div>
                         </td>
                       </tr>
-
-                      {/* --- EXPANDED DETAILS (Inside Table Row) --- */}
-                      {expandedId === item.id && (
-                        <tr className="bg-gray-50/60 transition-all duration-300">
-                          <td colSpan={7} className="px-10 py-10">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 animate-in fade-in slide-in-from-top-2 duration-300">
-                              <div className="space-y-6">
-                                <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Pack ID</label><p className="text-xs font-mono text-gray-500">79a8bee4-fb88-4829-94df-a24d6f093b3b</p></div>
-                                <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Dosage Form</label><p className="text-xs font-bold text-gray-900 uppercase">{item.form}</p></div>
-                              </div>
-                              <div className="space-y-6">
-                                <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">SKU</label><p className="text-xs font-mono text-gray-500">{item.sku}</p></div>
-                                <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Route</label><p className="text-xs font-bold text-gray-900 uppercase">{item.route}</p></div>
-                              </div>
-                              <div className="space-y-6">
-                                <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Barcode</label><p className="text-xs font-mono text-gray-500">{item.barcode}</p></div>
-                                <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Manufacturer</label><p className="text-xs font-bold text-gray-900 uppercase">{item.manufacturer}</p></div>
-                              </div>
-                              <div className="space-y-6">
-                                <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Pack Size</label><p className="text-xs font-bold text-gray-900 uppercase">{item.packSize}</p></div>
-                                <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Status</label><div className="flex items-center gap-1.5 text-emerald-600 text-[10px] font-bold mt-1 uppercase"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />{item.status}</div></div>
-                              </div>
-                            </div>
-                            
-                            <div className="mt-10 pt-8 border-t border-gray-200">
-                               <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-4">Active Ingredients</h4>
-                               <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold border border-blue-100">
-                                  {item.strength.split(' ')[0]} <span className="opacity-50">{item.strength.split(' ').slice(1).join(' ')}</span>
-                               </div>
-                               <p className="mt-4 text-[11px] italic text-gray-400 font-medium">Indications: Relieves seasonal and perennial allergic rhinitis.</p>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          {/* --- COMPACT PAGINATION (Fixed at Bottom) --- */}
-          <footer className="p-4 sm:p-6 bg-white border-t border-gray-100 flex items-center justify-between shrink-0">
-             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Page 1 of 4</div>
-             <div className="flex items-center gap-1">
-                <button className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 border border-gray-100"><ChevronLeft className="w-4 h-4" /></button>
-                <button className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#004797] text-white font-bold text-xs">1</button>
-                <button className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-white border border-gray-100 text-gray-700 font-bold text-xs">2</button>
-                <button className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 border border-gray-100"><ChevronRight className="w-4 h-4" /></button>
+          {/* --- FOOTER --- */}
+          <footer className="p-4 md:px-6 md:py-5 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 bg-white shrink-0">
+             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                SHOWING <span className="text-gray-900">1 - 50</span> OF 165 ITEMS
+             </div>
+             <div className="flex items-center gap-1.5">
+                <button className="flex items-center gap-1 px-3 py-2 text-gray-400 text-[10px] font-bold"><ChevronLeft className="w-4 h-4" /> PREV</button>
+                <button className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#00925d] text-white font-bold text-xs">1</button>
+                <button className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-50">2</button>
+                <button className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-100 text-gray-700 font-bold text-xs hover:bg-gray-50">3</button>
+                <button className="flex items-center gap-1 px-3 py-2 text-gray-900 text-[10px] font-bold">NEXT <ChevronRight className="w-4 h-4" /></button>
              </div>
           </footer>
         </main>
