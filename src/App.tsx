@@ -6,38 +6,42 @@ import AddSupplier from './pages/AddSupplier';
 import OnboardingOverview from './pages/Overview';
 import KYCDocuments from './pages/KYCDocuments';
 import MyCatalog from './pages/MyCatalog';
+import BrowseCatalog from './pages/BrowseCatalog';
 
-type ViewState = 'suppliers' | 'dashboard' | 'add-supplier' | 'overview' | 'kyc' | 'catalog';
+type ViewState = 'suppliers' | 'dashboard' | 'add-supplier' | 'overview' | 'kyc' | 'catalog' | 'browse';
 
 function App() {
   const [view, setView] = useState<ViewState>('suppliers');
 
-  const goToDashboard = () => setView('dashboard');
+  // Navigation Helpers
   const goToSuppliers = () => setView('suppliers');
+  const goToDashboard = () => setView('dashboard');
   const goToAddSupplier = () => setView('add-supplier');
+  const goToBrowse = () => setView('browse');
+  const goToCatalog = () => setView('catalog');
 
-
+  // 1. Full Screen Pages (No Sidebar)
   if (view === 'suppliers') {
-    return (
-      <Suppliers
-        onGoToDashboard={goToDashboard}
-        onAddSupplier={goToAddSupplier}
-      />
-    );
+    return <Suppliers onGoToDashboard={goToDashboard} onAddSupplier={goToAddSupplier} />;
   }
 
   if (view === 'add-supplier') {
     return <AddSupplier onBack={goToSuppliers} />;
   }
 
+  if (view === 'browse') {
+    return <BrowseCatalog onBack={goToCatalog} />;
+  }
+
+  // 2. Dashboard Pages (With Sidebar/Layout)
   return (
-    <DashboardLayout onExit={goToSuppliers} onNavigate={(v: any) => setView(v)}>
+    <DashboardLayout onExit={goToSuppliers} onNavigate={(target: any) => setView(target)}>
       {view === 'dashboard' && <Dashboard />}
       {view === 'overview' && <OnboardingOverview />}
       {view === 'kyc' && <KYCDocuments />}
-      {view === 'catalog' && <MyCatalog />}
+      {view === 'catalog' && <MyCatalog onBrowse={goToBrowse} />}
     </DashboardLayout>
   );
 }
 
-  export default App;
+export default App;
