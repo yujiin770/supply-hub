@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Search, ChevronDown, ChevronUp, Plus, X, 
   ChevronRight, ChevronLeft, Filter as FilterIcon,
-  Check, Menu
+  Check, 
 } from 'lucide-react';
 
 interface BrowseItem {
@@ -135,7 +135,7 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const toggleRow = (id: string) => setExpandedId(expandedId === id ? null : id);
 
   return (
-    <div className="fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden font-sans">
+    <div className="fixed inset-0 bg-white z-100 flex flex-col overflow-hidden font-sans">
       
       {/* --- HEADER --- */}
       <header className="h-16 border-b border-gray-100 flex items-center px-4 md:px-6 gap-4 shrink-0 bg-white">
@@ -171,7 +171,7 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         
         {/* --- SIDEBAR FILTERS (Slide-in on mobile) --- */}
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black/40 z-[80] lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 z-80 lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
         )}
         
         <aside className={`
