@@ -53,5 +53,4 @@ const TopItems: React.FC<TopItemsProps> = ({ type, items }) => {
         </div>
     );
 };
-
 export default TopItems;

@@ -1,5 +1,4 @@
-﻿// src/components/layout/Sidebar.tsx
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import SidebarLogo from '../sidebar/SidebarLogo';
 import SidebarNav from '../sidebar/SidebarNav';
 import SidebarBottomActions from '../sidebar/SidebarBottomActions';

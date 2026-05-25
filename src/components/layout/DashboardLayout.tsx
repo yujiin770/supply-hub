@@ -1,4 +1,3 @@
-// src/components/layout/DashboardLayout.tsx
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import { Menu, Bell, User, X } from 'lucide-react';
@@ -13,26 +12,26 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <div className="flex h-screen bg-[#F4F7FE] font-sans overflow-hidden">
-      
+
       {/* Mobile Dark Overlay - click to close sidebar */}
       {isMobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       {/* Sidebar Component */}
-      <Sidebar 
-        isDesktopCollapsed={isDesktopCollapsed} 
-        isMobileOpen={isMobileOpen} 
+      <Sidebar
+        isDesktopCollapsed={isDesktopCollapsed}
+        isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
-        setIsDesktopCollapsed={setIsDesktopCollapsed}  // Added this line
+        setIsDesktopCollapsed={setIsDesktopCollapsed}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300 relative w-full">
-        
+
         {/* Acting as Supplier Banner - Yellow */}
         <div className="bg-amber-400 border-b border-amber-200 px-4 sm:px-6 py-2.5 shrink-0">
           {/* Desktop Layout */}
@@ -71,9 +70,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         {/* Top Header */}
         <header className="bg-white border-b border-gray-100 h-16 flex items-center justify-between px-4 sm:px-6 z-10 shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
-            
+
             {/* Mobile Hamburger Button */}
-            <button 
+            <button
               onClick={() => setIsMobileOpen(true)}
               className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors md:hidden"
             >
@@ -81,7 +80,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             </button>
 
             {/* Desktop Hamburger Button */}
-            <button 
+            <button
               onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)}
               className="p-2 rounded-lg cursor-pointer hover:bg-gray-100 text-gray-600 transition-colors hidden md:block"
             >
@@ -92,7 +91,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-4">
-     
+
             <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-bold text-gray-800 leading-tight">Lander Gallego Ambito</div>
@@ -107,7 +106,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
         {/* Scrollable Page Content */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 w-full">
-          <div className="max-w-[1525px] mx-auto">
+          <div className="max-w-[1550px] mx-auto">
             {children}
           </div>
         </main>

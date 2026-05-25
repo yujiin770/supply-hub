@@ -1,4 +1,3 @@
-// src/components/sidebar/SidebarBottomActions.tsx
 import React from 'react';
 import { Settings, HelpCircle, LogOut } from 'lucide-react';
 import SidebarNavItem from './SidebarNavItem';

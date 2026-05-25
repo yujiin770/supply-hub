@@ -40,7 +40,6 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-
   if (loading) {
     return (
       <DashboardLayout>
@@ -58,7 +57,29 @@ function App() {
         {/* Row 2: Charts Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
-            <LoadingSkeleton type="chart" />
+            {/* Orders by Status Card Skeleton - Matching the actual card grid */}
+            <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="h-6 bg-gray-100 rounded-md w-40 animate-pulse mb-2"></div>
+                  <div className="h-3 bg-gray-100 rounded-md w-48 animate-pulse"></div>
+                </div>
+                <div className="h-8 bg-gray-100 rounded-lg w-20 animate-pulse"></div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                  <div key={i} className="rounded-xl border border-gray-100 overflow-hidden">
+                    <div className="h-1 w-full bg-gray-100 animate-pulse"></div>
+                    <div className="p-4">
+                      <div className="w-8 h-8 rounded-lg bg-gray-100 animate-pulse mb-3"></div>
+                      <div className="h-7 bg-gray-100 rounded-md w-12 mb-1 animate-pulse"></div>
+                      <div className="h-3 bg-gray-100 rounded-md w-20 mb-3 animate-pulse"></div>
+                      <div className="h-1 bg-gray-100 rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           <div className="lg:col-span-1">
             <LoadingSkeleton type="chart" />
@@ -78,9 +99,9 @@ function App() {
       <Toaster position="top-right" richColors />
 
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Overview</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Dashboard</h1>
         <p className="text-sm text-gray-500 font-medium mt-1">
-          Here is the latest summary of your operations.
+          Welcome back, Lander Gallego Ambito, Here's your overview
         </p>
       </div>
 
