@@ -72,7 +72,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               className="bg-white text-amber-600 px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1"
             >
               <X className="w-3 h-3" />
-              <span>Exit</span>
+              <span>Exit supplier view</span>
             </button>
           </div>
         </div>

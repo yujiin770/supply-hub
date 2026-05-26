@@ -117,7 +117,7 @@ const KYCDocuments: React.FC = () => {
                 </div>
               </div>
 
-              <button className="w-full bg-[#004797] hover:bg-black text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/10 active:scale-[0.98]">
+              <button className="w-full bg-[#004797] hover:bg-black text-white py-4 rounded-xl cursor-pointer font-bold transition-all shadow-lg shadow-blue-900/10 active:scale-[0.98]">
                 Upload Document
               </button>
             </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Search, ChevronDown, ChevronUp, Plus, X, 
   ChevronRight, ChevronLeft, Filter as FilterIcon,
-  Check, Menu
+  Check
 } from 'lucide-react';
 
 interface BrowseItem {
@@ -126,20 +126,56 @@ const BROWSE_DATA: BrowseItem[] = [
     activeIngredients: [{ name: 'Aluminum Hydroxide', strength: '200 mg' }, { name: 'Magnesium Hydroxide', strength: '100 mg' }],
     indication: 'Antacid relief.'
   },
+  { 
+    id: '9', 
+    brandName: 'Amboxol-144', 
+    strength: 'Ceftriaxone 500 mmol', 
+    form: 'Capsule', 
+    packSize: '1.0000 mmol', 
+    manufacturer: 'Interphil Laboratories Inc.', 
+    barcode: '4807248640359', 
+    sku: 'INT-AMB-500', route: 'Oral', status: 'Active', packId: 'amb-500-1',
+    activeIngredients: [{ name: 'Ceftriaxone', strength: '500 mmol' }],
+    indication: 'Antibiotic therapy.'
+  },
+  { 
+    id: '10', 
+    brandName: 'Amboxol-144', 
+    strength: 'Bisoprolol 100 mol', 
+    form: 'Chewable Tablet', 
+    packSize: '10.0000 bottle', 
+    manufacturer: 'Bayer Philippines', 
+    barcode: '4804256886625', 
+    sku: 'BAY-BIS-100', route: 'Oral', status: 'Active', packId: 'bis-100-1',
+    activeIngredients: [{ name: 'Bisoprolol', strength: '100 mol' }],
+    indication: 'Cardiovascular management.'
+  },
+  { 
+    id: '11', 
+    brandName: 'Amboxol-144', 
+    strength: 'Ambroxol 30 mg', 
+    form: 'Capsule', 
+    packSize: '10.0000 cap', 
+    manufacturer: 'Bayer Philippines', 
+    barcode: '4803752625080', 
+    sku: 'BAY-AMB-30', route: 'Oral', status: 'Active', packId: 'amb-30-1',
+    activeIngredients: [{ name: 'Ambroxol', strength: '30 mg' }],
+    indication: 'Mucolytic agent.'
+  }
 ];
 
 const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [expandedId, setExpandedId] = useState<string | null>('5'); // Default open Alaxan like image
+  const [expandedId, setExpandedId] = useState<string | null>('5');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [addingItem, setAddingItem] = useState<BrowseItem | null>(null);
 
   const toggleRow = (id: string) => setExpandedId(expandedId === id ? null : id);
 
   return (
-    <div className="fixed inset-0 bg-white z-100 flex flex-col overflow-hidden font-sans">
+    <div className="fixed inset-0 bg-white z-[100] flex flex-col overflow-hidden font-sans">
       
       {/* --- HEADER --- */}
-      <header className="h-16 border-b border-gray-100 flex items-center px-4 md:px-6 gap-4 shrink-0 bg-white">
-        {/* Burger Button for Mobile Filters */}
+      <header className="h-16 border-b border-gray-100 flex items-center px-4 md:px-6 gap-4 shrink-0 bg-white sticky top-0 z-[100]">
         <button 
           onClick={() => setIsSidebarOpen(true)}
           className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg border border-gray-100"
@@ -157,10 +193,6 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
 
         <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-1 text-[11px] font-bold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer">
-                <span>Brand A-Z</span>
-                <ChevronDown className="w-4 h-4" />
-            </div>
             <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
                 <X className="w-6 h-6 text-gray-400" />
             </button>
@@ -171,15 +203,15 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         
         {/* --- SIDEBAR FILTERS (Slide-in on mobile) --- */}
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black/40 z-80 lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 z-[80] lg:hidden backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
         )}
         
         <aside className={`
-          fixed inset-y-0 left-0 z-90 w-72 bg-white border-r border-gray-100 transition-transform duration-300 lg:relative lg:translate-x-0 lg:z-0 lg:w-64 flex flex-col
+          fixed inset-y-0 left-0 z-[90] w-72 bg-white border-r border-gray-100 transition-transform duration-300 lg:relative lg:translate-x-0 lg:z-0 lg:w-64 flex flex-col
           ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
         `}>
-          <div className="p-5 flex items-center justify-between lg:hidden border-b border-gray-100">
-             <span className="font-bold text-gray-900">Filters</span>
+          <div className="p-5 flex items-center justify-between lg:hidden border-b border-gray-100 bg-gray-50">
+             <span className="font-bold text-gray-900 uppercase text-xs tracking-widest">Filters</span>
              <button onClick={() => setIsSidebarOpen(false)}><X className="w-5 h-5" /></button>
           </div>
           <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
@@ -208,22 +240,24 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </div>
         </aside>
 
-        {/* --- MAIN CONTENT --- */}
+        {/* --- MAIN CONTENT AREA --- */}
         <main className="flex-1 flex flex-col min-w-0 bg-white overflow-hidden">
           
           <div className="px-4 md:px-6 py-5 border-b border-gray-50 flex items-center justify-between shrink-0 bg-white">
-             <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">
+             <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.1em]">
                 50 <span className="text-gray-400">/ 165 ON PAGE</span>
              </p>
+             {/* Corrected fixed button size */}
              <button className="bg-[#00925d] hover:bg-[#007a4e] text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-md flex items-center gap-2">
                 <Plus className="w-4 h-4" /> Add all visible (49)
              </button>
           </div>
 
+          {/* TABLE: Horizontally scrollable on mobile without stickiness */}
           <div className="flex-1 overflow-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-300">
+            <table className="w-full text-left border-collapse min-w-[1200px]">
               <thead>
-                <tr className="bg-gray-50/50 border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <tr className="bg-gray-50/50 border-b border-gray-100 text-[10px] font-bold text-black uppercase tracking-widest">
                   <th className="px-6 py-4">BRAND NAME</th>
                   <th className="px-6 py-4">STRENGTH / INN</th>
                   <th className="px-6 py-4">FORM</th>
@@ -254,21 +288,24 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                <Check className="w-3.5 h-3.5" /> Added
                             </div>
                           ) : (
-                            <button className="bg-[#00925d] text-white px-5 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm">
-                                <Plus className="w-4 h-4" /> Add
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); setAddingItem(item); }}
+                                className="bg-[#00925d] text-white px-5 py-1.5 cursor-pointer rounded-lg text-xs font-bold active:scale-95 transition-all flex items-center gap-1.5 shadow-sm"
+                            >
+                                <Plus className="w-4 h-4 " /> Add
                             </button>
                           )}
                         </div>
                       </td>
                     </tr>
 
-                    {/* --- EXACT DATA EXPANDED VIEW --- */}
+                    {/* --- EXPANDED DETAILS (EXACT DATA) --- */}
                     {expandedId === item.id && (
                       <tr className="bg-[#fcfdfe]">
                         <td colSpan={7} className="px-10 py-10">
                           <div className="grid grid-cols-4 gap-12">
                             <div className="space-y-6">
-                              <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Pack ID</label><p className="text-xs text-gray-600 font-bold break-all">{item.packId}</p></div>
+                              <div><label className="text-[10px] font-bold text-black uppercase tracking-widest block mb-2">Pack ID</label><p className="text-xs text-gray-600 font-bold break-all">{item.packId}</p></div>
                               <div><label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Dosage Form</label><p className="text-xs text-gray-900 font-bold">{item.form}</p></div>
                             </div>
                             <div className="space-y-6">
@@ -305,7 +342,7 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </table>
           </div>
 
-          {/* --- FOOTER --- */}
+          {/* --- FOOTER / PAGINATION --- */}
           <footer className="p-4 md:px-6 md:py-5 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 bg-white shrink-0">
              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                 SHOWING <span className="text-gray-900">1 - 50</span> OF 165 ITEMS
@@ -320,6 +357,50 @@ const BrowseCatalog: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </footer>
         </main>
       </div>
+
+      {/* --- FLOATING HALF-SIZE MODAL (Add to Catalog) --- */}
+      {addingItem && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setAddingItem(null)} />
+          <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl relative z-10 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <header className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-[11px] font-bold text-[#00925d] uppercase tracking-widest mb-1">ADD TO MY CATALOG</h3>
+                <h2 className="text-xl font-bold text-gray-900">{addingItem.brandName}</h2>
+                <p className="text-xs font-bold text-gray-400 mt-0.5">{addingItem.strength} · {addingItem.form}</p>
+              </div>
+              <button onClick={() => setAddingItem(null)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X className="w-5 h-5 text-gray-400" /></button>
+            </header>
+
+            <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+               <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500">Base Price (PHP)</label>
+                  <input type="text" placeholder="e.g. 125.00" className="w-full px-4 py-3 bg-[#f8fafc] border border-gray-200 rounded-xl text-sm font-bold focus:bg-white focus:border-blue-500 outline-none transition-all" />
+               </div>
+               <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500">MOQ (units)</label>
+                  <input type="text" placeholder="e.g. 10" className="w-full px-4 py-3 bg-[#f8fafc] border border-gray-200 rounded-xl text-sm font-bold focus:bg-white focus:border-blue-500 outline-none transition-all" />
+               </div>
+               <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500">Lead Time (days)</label>
+                  <input type="text" placeholder="e.g. 3" className="w-full px-4 py-3 bg-[#f8fafc] border border-gray-200 rounded-xl text-sm font-bold focus:bg-white focus:border-blue-500 outline-none transition-all" />
+               </div>
+               <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-500">Stock Qty</label>
+                  <input type="text" placeholder="blank = unlimited" className="w-full px-4 py-3 bg-[#f8fafc] border border-gray-200 rounded-xl text-sm font-bold focus:bg-white focus:border-blue-500 outline-none transition-all" />
+               </div>
+               <p className="text-[11px] font-bold text-blue-400/80 leading-relaxed text-center">
+                  All fields are optional and can be updated later from My Catalog.
+               </p>
+            </div>
+
+            <footer className="p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-end gap-3">
+                <button onClick={() => setAddingItem(null)} className="px-6 py-3 text-sm rounded-xl cursor-pointer bg-red-500 text-white font-bold hover:bg-red-700 transition-colors">Cancel</button>
+                <button onClick={() => setAddingItem(null)} className="px-8 py-3 bg-[#00925d] text-white font-bold rounded-xl hover:bg-[#007a4e] cursor-pointer shadow-lg shadow-emerald-600/10 transition-all text-sm">Add to Catalog</button>
+            </footer>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

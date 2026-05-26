@@ -59,11 +59,11 @@ const AddSupplier: React.FC<AddSupplierProps> = ({ onBack }) => {
             </nav>
 
             <main className="max-w-7xl mx-auto pt-6 sm:pt-10 px-4 sm:px-6 pb-24">
-                
+
                 {/* --- New Breadcrumb Indicator --- */}
                 <nav className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] text-gray-400 mb-6">
-                    <button 
-                        onClick={onBack} 
+                    <button
+                        onClick={onBack}
                         className="hover:text-[#004797] transition-colors cursor-pointer"
                     >
                         Suppliers
@@ -75,7 +75,7 @@ const AddSupplier: React.FC<AddSupplierProps> = ({ onBack }) => {
                 {/* --- Back Navigation --- */}
                 <button
                     onClick={onBack}
-                    className="flex items-center gap-2 text-gray-500 hover:text-[#004797] font-bold text-sm mb-6 transition-colors group"
+                    className="flex items-center gap-2 text-gray-500 hover:text-[#004797] cursor-pointer font-bold text-sm mb-6 transition-colors group"
                 >
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                     Back to list
@@ -138,7 +138,7 @@ const AddSupplier: React.FC<AddSupplierProps> = ({ onBack }) => {
                             {/* Address */}
                             <div className="space-y-2">
                                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
-                                     Address <span className="text-rose-500">*</span>
+                                    Address <span className="text-rose-500">*</span>
                                 </label>
                                 <div className="relative">
                                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
