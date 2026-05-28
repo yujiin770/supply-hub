@@ -1,24 +1,66 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Eugene Files 
+#Logs
+Eugene/logs
+Eugene/*.log
+Eugene/npm-debug.log*
+Eugene/yarn-debug.log*
+Eugene/yarn-error.log*
+Eugene/pnpm-debug.log*
+Eugene/lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+Eugene/node_modules
+Eugene/dist
+Eugene/dist-ssr
+Eugene/*.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Eugene/.vscode/*
+Eugene/!.vscode/extensions.json
+Eugene/.idea
+Eugene/.DS_Store
+Eugene/*.suo
+Eugene/*.ntvs*
+Eugene/*.njsproj
+Eugene/*.sln
+Eugene/*.sw?
+
+# Mico Files
+
+Mico/.venv
+Mico/.vite
+
+Mico/.env
+Mico/.env.example
+Mico/uploads
+
+# Logs
+Mico/logs
+Mico/*.log
+Mico/npm-debug.log*
+Mico/yarn-debug.log*
+Mico/yarn-error.log*
+Mico/pnpm-debug.log*
+Mico/lerna-debug.log*
+
+Mico/node_modules
+Mico/node_modules/.vite
+Mico/dist
+Mico/dist-ssr
+Mico/*.local
+Mico/.env
+Mico/.env.*
+Mico/!.env.example
+
+# Azure auto-generated workflow files
+Mico/.github/workflows/azure-static-web-apps-*.yml
+
+# Editor directories and files
+Mico/.vscode/*
+Mico/!.vscode/extensions.json
+Mico/.idea
+Mico/.DS_Store
+Mico/*.suo
+Mico/*.ntvs*
+Mico/*.njsproj
+Mico/*.sln
+Mico/*.sw?

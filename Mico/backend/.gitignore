@@ -1,0 +1,6 @@
+/.venv
+/.vite
+
+/.env
+/.env.example
+/uploads
