@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, HelpCircle, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import SidebarNavItem from './SidebarNavItem';
 
 interface SidebarBottomActionsProps {
@@ -8,8 +8,7 @@ interface SidebarBottomActionsProps {
 
 const SidebarBottomActions: React.FC<SidebarBottomActionsProps> = ({ isDesktopCollapsed }) => {
     const bottomItems = [
-        { label: 'Settings', icon: Settings },
-        { label: 'Help', icon: HelpCircle },
+
         { label: 'Logout', icon: LogOut },
     ];
 

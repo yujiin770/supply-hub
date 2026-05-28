@@ -16,7 +16,7 @@ const KYCDocuments: React.FC = () => {
     <div className="pb-20 max-w-8xl mx-auto">
       {/* --- Page Header --- */}
       <div className="mb-10">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
           KYC Documents
         </h1>
         <p className="text-sm text-gray-500 font-medium mt-1">
@@ -28,7 +28,7 @@ const KYCDocuments: React.FC = () => {
       <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>
-            <h2 className="text-lg font-bold text-gray-800">
+            <h2 className="text-lg font-semibold text-gray-800">
               Required documents submitted
             </h2>
             <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mt-1">
@@ -50,7 +50,7 @@ const KYCDocuments: React.FC = () => {
               key={doc.key}
               className="flex items-center gap-3 p-4 rounded-2xl bg-gray-50/50 border border-gray-100 transition-all hover:bg-white hover:shadow-sm group"
             >
-              <div className="w-8 h-8 rounded-full bg-white border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 group-hover:border-amber-400 transition-colors">
+              <div className="w-8 h-8 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-gray-300 group-hover:border-amber-400 transition-colors">
                 <div className="w-2 h-2 rounded-full bg-current"></div>
               </div>
               <span className="text-xs font-bold text-gray-600 uppercase tracking-tight">
@@ -65,7 +65,7 @@ const KYCDocuments: React.FC = () => {
         {/* --- LEFT COLUMN: Upload Section (5 cols) --- */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
-            <h3 className="text-base font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <h3 className="text-base font-semibold text-gray-800 mb-6 flex items-center gap-2">
               <UploadCloud className="w-5 h-5 text-blue-500" />
               Upload Document
             </h3>
@@ -107,7 +107,7 @@ const KYCDocuments: React.FC = () => {
                     (PDF, JPEG, PNG — max 10 MB)
                   </span>
                 </label>
-                <div className="border-2 border-dashed border-gray-100 rounded-2xl p-10 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group">
+                <div className="border-2 border-gray-100 rounded-2xl p-10 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group">
                   <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-100 transition-colors">
                     <FileText className="w-6 h-6 text-gray-400 group-hover:text-blue-600" />
                   </div>
@@ -128,7 +128,7 @@ const KYCDocuments: React.FC = () => {
         <div className="lg:col-span-7">
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col min-h-125">
             <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
-              <h3 className="text-base font-bold text-gray-800">
+              <h3 className="text-base font-semibold text-gray-800">
                 Uploaded Documents
               </h3>
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
@@ -141,7 +141,7 @@ const KYCDocuments: React.FC = () => {
                 <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-4">
                   <FileCheck className="w-10 h-10 text-gray-200" />
                 </div>
-                <h4 className="text-base font-bold text-gray-900">
+                <h4 className="text-base font-semibold text-gray-900">
                   No documents uploaded yet
                 </h4>
                 <p className="text-sm text-gray-400 font-medium mt-1 max-w-60">

@@ -29,7 +29,7 @@ const SidebarIncomingOrders: React.FC<SidebarIncomingOrdersProps> = ({
         <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block">
           Operations
         </span>
-        <h3 className="text-base font-bold text-[#004797] mt-0.5 uppercase tracking-wide">
+        <h3 className="text-base font-semibold text-[#004797] mt-0.5 uppercase tracking-wide">
           Incoming Orders
         </h3>
       </div>

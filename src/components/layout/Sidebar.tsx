@@ -133,7 +133,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 setLocalActiveItem("Dashboard");
                 onNavigate("dashboard");
               }}
-              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#004797] hover:text-black mb-8 transition-colors text-left focus:outline-none cursor-pointer"
+              className="flex items-center gap-2 text-xs font-bold uppercase  tracking-wider text-[#004797] hover:text-black mb-8 transition-colors text-left focus:outline-none cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 shrink-0" />
               {!isDesktopCollapsed && <span>Go Back</span>}

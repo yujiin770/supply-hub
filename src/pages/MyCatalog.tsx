@@ -3,7 +3,6 @@ import {
   Search,
   RotateCw,
   Plus,
-  Edit3,
   X,
   CheckCircle2,
   PackageSearch,
@@ -62,7 +61,7 @@ const MyCatalog: React.FC<MyCatalogProps> = ({ onBrowse }) => {
       {/* --- Header --- */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
             My Catalog
           </h1>
           <p className="text-sm text-gray-500 font-medium mt-1">
@@ -121,20 +120,26 @@ const MyCatalog: React.FC<MyCatalogProps> = ({ onBrowse }) => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-50">
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                    Product
+                  <th className="px-6 py-4 text-[10px] font-bold text-black uppercase tracking-widest">
+                    PRODUCT
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                    Strength / Form
+                  <th className="px-6 py-4 text-[10px] font-bold text-black uppercase tracking-widest">
+                    STRENGTH / FORM
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                    Base Price
+                  <th className="px-6 py-4 text-[10px] font-bold text-black uppercase tracking-widest">
+                    BASE PRICE
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">
-                    Stock
+                  <th className="px-6 py-4 text-[10px] font-bold text-black uppercase tracking-widest">
+                    MOQ
                   </th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">
-                    Status
+                  <th className="px-6 py-4 text-[10px] font-bold text-black uppercase tracking-widest">
+                    LEAD TIME
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-black uppercase tracking-widest">
+                    STOCK
+                  </th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-black uppercase tracking-widest">
+                    STATUS
                   </th>
                   <th className="px-6 py-4"></th>
                 </tr>
@@ -146,48 +151,49 @@ const MyCatalog: React.FC<MyCatalogProps> = ({ onBrowse }) => {
                     className="hover:bg-gray-50/30 transition-colors group"
                   >
                     <td className="px-6 py-5">
-                      <div className="text-sm font-bold text-gray-900">
+                      <div className="text-sm font-medium text-gray-900">
                         {p.name}
                       </div>
-                      <div className="text-[11px] text-gray-400 font-bold uppercase mt-0.5">
+                      <div className="text-[11px] text-gray-400 font-extralight uppercase mt-0.5">
                         {p.manufacturer}
                       </div>
                     </td>
                     <td className="px-6 py-5">
-                      <div className="text-sm font-bold text-gray-700">
+                      <div className="text-[13px] font-medium text-gray-700">
                         {p.strength}
                       </div>
-                      <div className="text-[11px] text-gray-400 font-medium mt-0.5">
+                      <div className="text-[11px] text-gray-300 font-medium mt-0.5">
                         {p.form}
                       </div>
                     </td>
-                    <td className="px-6 py-5 font-bold text-gray-900 text-sm">
+                    <td className="px-6 py-5 font-medium text-gray-900 text-[13px]">
                       ₱ {p.price.toFixed(2)}
                     </td>
-                    <td className="px-6 py-5 text-center text-xl font-medium text-gray-400">
+                    <td className="px-6 py-5 text-[13px] font-meedium text-gray-700">
+                      {p.moq}
+                    </td>
+                    <td className="px-6 py-5 text-[13px] font-medium text-gray-700">
+                      {p.leadTime}
+                    </td>
+                    <td className="px-6 py-5 text-xl font-medium text-gray-400">
                       {p.stock}
                     </td>
-                    <td className="px-6 py-5 text-center">
-                      <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100 text-[10px] font-bold uppercase inline-flex items-center gap-1.5">
-                        <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
+                    <td className="px-6 py-5">
+                      <span className="px-3 py-1 bg-[#eaf7f2] text-[#00925d] rounded-full border border-[#c4e9db] text-[10px] font-bold uppercase inline-flex items-center gap-1.5">
+                        <div className="w-1 h-1 rounded-full bg-[#00925d]"></div>
                         {p.status}
                       </span>
                     </td>
                     <td className="px-6 py-5 text-right">
-                      <div className="relative group/tooltip inline-block">
-                        <button
-                          onClick={() => {
-                            setSelectedProduct(p);
-                            setIsModalOpen(true);
-                          }}
-                          className="p-2.5 bg-gray-50 text-gray-400 hover:text-[#004797] hover:bg-blue-50 rounded-xl transition-all border border-gray-100 cursor-pointer"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-[10px] font-bold rounded opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all z-50">
-                          Edit
-                        </div>
-                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedProduct(p);
+                          setIsModalOpen(true);
+                        }}
+                        className="px-4 py-1.5 bg-white text-gray-600 text-xs font-bold rounded-lg border border-gray-200 hover:bg-gray-50 transition-all cursor-pointer shadow-sm"
+                      >
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))}

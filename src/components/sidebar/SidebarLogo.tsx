@@ -6,7 +6,7 @@ interface SidebarLogoProps {
 
 const SidebarLogo: React.FC<SidebarLogoProps> = ({ isDesktopCollapsed }) => {
     return (
-        <div className={`h-16 flex items-center border-b border-gray-100 px-4 shrink-0 relative ${isDesktopCollapsed ? 'md:justify-center' : ''}`}>
+        <div className={`h-25 flex items-center border-b border-gray-100 justify-center py-2 shrink-0 relative ${isDesktopCollapsed ? 'md:justify-center' : ''}`}>
             <img
                 src="/logo.png"
                 alt="SupplyHub"

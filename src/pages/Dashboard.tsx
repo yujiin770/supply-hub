@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Toaster } from "sonner";
-// Add the 'type' keyword before LucideIcon
 import {
   ClipboardList,
   RefreshCw,
@@ -42,7 +41,7 @@ const StatsCard = ({
 }: StatsCardProps) => {
   if (variant === "status") {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-32 group">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-32 group">
         <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#F0FAFB] to-[#E6F0F9] text-[#21BBD7] flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:from-[#21BBD7] group-hover:to-[#004797] group-hover:text-white">
           <Icon className="w-5 h-5" />
         </div>
@@ -257,7 +256,7 @@ const TopItems = ({ type, items }: { type: "fast" | "slow"; items: any[] }) => {
         </h3>
       </div>
       {items.length === 0 ? (
-        <div className="h-32 flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl">
+        <div className="h-32 flex items-center justify-center border-2  border-gray-100 rounded-xl">
           <p className="text-gray-400 text-sm font-medium">
             Not enough data available
           </p>
@@ -297,6 +296,26 @@ const TopItems = ({ type, items }: { type: "fast" | "slow"; items: any[] }) => {
     </div>
   );
 };
+
+// --- New Glance Sub-Component ---
+const GlanceMetric = ({ label, value, total, color, percent }: any) => (
+  <div className="flex flex-col gap-1.5 flex-1">
+    <div className="flex justify-between items-center px-1">
+      <span className="text-[13px] font-medium text-gray-500">{label}</span>
+      <span className={`text-[13px] font-bold ${color}`}>{percent}%</span>
+    </div>
+    <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+      <div
+        className={`h-full ${color.replace("text-", "bg-")} transition-all duration-1000`}
+        style={{ width: `${percent}%` }}
+      />
+    </div>
+    <div className="flex items-baseline gap-1.5 px-1 mt-1">
+      <span className="text-2xl font-bold text-gray-900 leading-none">{value}</span>
+      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">of {total}</span>
+    </div>
+  </div>
+);
 
 // --- Main Dashboard Page ---
 
@@ -353,7 +372,7 @@ const Dashboard: React.FC = () => {
     <>
       <Toaster position="top-right" richColors />
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
           Dashboard
         </h1>
         <p className="text-sm text-gray-500 font-medium mt-1">
@@ -401,7 +420,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <TopItems
           type="fast"
           items={[
@@ -413,6 +432,47 @@ const Dashboard: React.FC = () => {
           ]}
         />
         <TopItems type="slow" items={[]} />
+      </div>
+
+      {/* --- ADDED SECTION: ORDERS VS STOCK AT A GLANCE --- */}
+      <div className="bg-white rounded-[24px] border border-gray-100 p-8 shadow-[0_2px_12px_rgba(0,0,0,0.02)] mb-12">
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-[#004797]">Orders vs Stock at a Glance</h3>
+          <p className="text-[13px] text-gray-400 font-medium mt-0.5">
+            Active order pipeline compared to catalog readiness
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <GlanceMetric 
+            label="Pending Orders" 
+            value={0} 
+            total={1} 
+            color="text-orange-500" 
+            percent={0} 
+          />
+          <GlanceMetric 
+            label="Orders Confirmed" 
+            value={0} 
+            total={1} 
+            color="text-blue-500" 
+            percent={0} 
+          />
+          <GlanceMetric 
+            label="Catalog In-Stock" 
+            value={0} 
+            total={50} 
+            color="text-emerald-500" 
+            percent={0} 
+          />
+          <GlanceMetric 
+            label="Catalog Out-of-Stock" 
+            value={1} 
+            total={50} 
+            color="text-orange-600" 
+            percent={2} 
+          />
+        </div>
       </div>
     </>
   );

@@ -12,6 +12,7 @@ import {
 interface SuppliersProps {
     onGoToDashboard: () => void;
     onAddSupplier: () => void;
+    onViewDetail: (supplier: Supplier) => void; 
 }
 
 interface Supplier {
@@ -44,7 +45,7 @@ const StatusBadge = ({ status }: { status: Supplier['status'] }) => {
     );
 };
 
-const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier }) => {
+const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier, onViewDetail }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -58,7 +59,7 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
             <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100 h-16 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-50">
                 <div className="flex items-center gap-4 sm:gap-10">
                     <img src="/logo.png" alt="SupplyHub" className="h-6 sm:h-7 w-auto object-contain" />
-                    {/* RESTORED: Suppliers and API Clients buttons */}
+                    {/* Suppliers and API Clients buttons */}
                     <div className="hidden lg:flex items-center gap-1">
                         <button className="px-4 py-2 rounded-lg bg-[#004797]/5 text-[#004797] font-bold text-sm cursor-pointer">Suppliers</button>
                         <button className="px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-50 font-bold text-sm transition-all cursor-pointer">API Clients</button>
@@ -71,7 +72,7 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
                             <div className="text-sm font-bold text-gray-900 leading-none">Mico Echaure</div>
                             <div className="text-[10px] font-bold text-blue-500 uppercase mt-1 tracking-wider">Super Admin</div>
                         </div>
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#004797] to-[#21BBD7] flex items-center justify-center text-white font-bold text-xs shadow-md">ME</div>
+                        <div className="w-9 h-9 rounded-full bg-linear-to-tr from-[#004797] to-[#21BBD7] flex items-center justify-center text-white font-bold text-xs shadow-md">ME</div>
                     </div>
                     <button className="p-2 text-gray-300 hover:text-rose-500 transition-colors cursor-pointer">
                         <LogOut className="w-5 h-5" />
@@ -79,7 +80,7 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
                 </div>
             </nav>
 
-            <main className="max-w-[1400px] mx-auto pt-6 sm:pt-10 px-4 sm:px-8 pb-20">
+            <main className="max-w-350 mx-auto pt-6 sm:pt-10 px-4 sm:px-8 pb-20">
 
                 {/* --- HERO SECTION --- */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10">
@@ -88,7 +89,7 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
                             <Building2 className="w-7 h-7 text-[#00925d]" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-[#002244] tracking-tight">Suppliers</h1>
+                            <h1 className="text-3xl font-semibold text-[#002244] tracking-tight">Suppliers</h1>
                             <p className="text-sm font-bold text-[#00925d] mt-0.5">
                                 {SUPPLIERS_DATA.length} Partners <span className="text-gray-400">Total</span>
                             </p>
@@ -121,19 +122,22 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
                     </div>
 
                     {/* Filter Dropdown */}
-                    <div className="w-full lg:w-72 bg-white px-4 py-1 rounded-2xl border border-gray-100 shadow-sm relative flex items-center shrink-0 h-[62px]">
+                    <div className="w-full lg:w-72 bg-white px-4 py-1 rounded-2xl border border-gray-100 shadow-sm relative flex items-center shrink-0 h-15.5">
                         <Filter className="w-4 h-4 text-gray-400 mr-3" />
-                        <select className="flex-1 appearance-none bg-transparent border-none text-sm font-bold text-gray-700 cursor-pointer outline-none">
-                            <option>All Status</option>
-                            <option>Approved</option>
+                        <select className="flex-1 appearance-none bg-transparent p-5 border-none text-sm font-bold text-gray-700 cursor-pointer outline-none">
+                            <option className="font-bold">All Status</option>
+                            <option>Draft</option>
                             <option>Pending KYC</option>
+                            <option>Pending Approval</option>
+                            <option>Approved</option>
+                            <option>Rejected</option>
                             <option>Suspended</option>
                         </select>
                         <ChevronDown className="w-4 h-4 text-gray-400" />
                     </div>
                 </div>
 
-                {/* --- CONTENT CONTAINER (White rounded box) --- */}
+                {/* --- CONTENT CONTAINER --- */}
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center p-20 space-y-4">
@@ -157,14 +161,24 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
                                         {SUPPLIERS_DATA.map((item) => (
-                                            <tr key={item.code} className="hover:bg-gray-50/30 transition-colors group">
+                                            <tr
+                                                key={item.code}
+                                                className="hover:bg-gray-50/30 transition-colors group cursor-pointer"
+                                                onClick={() => onViewDetail(item)}
+                                            >
                                                 <td className="px-8 py-6 font-mono font-bold text-xs text-gray-400">{item.code}</td>
                                                 <td className="px-8 py-6 font-bold text-sm text-[#002244] group-hover:text-[#004797] transition-colors">{item.legalName}</td>
                                                 <td className="px-8 py-6 font-bold text-sm text-gray-400 italic">{item.tradeName || '—'}</td>
                                                 <td className="px-8 py-6 text-center"><StatusBadge status={item.status} /></td>
                                                 <td className="px-8 py-6 font-bold text-xs text-gray-400">{item.created}</td>
                                                 <td className="px-8 py-6 text-right">
-                                                    <button onClick={onGoToDashboard} className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#eaf7f2] text-[#00925d] text-xs font-bold rounded-xl hover:bg-[#00925d] hover:text-white transition-all shadow-sm cursor-pointer">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // Prevents row click
+                                                            onGoToDashboard();
+                                                        }}
+                                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#eaf7f2] text-[#00925d] text-xs font-bold rounded-xl hover:bg-[#00925d] hover:text-white transition-all shadow-sm cursor-pointer"
+                                                    >
                                                         Go to Supplier <ArrowRight className="w-3.5 h-3.5" />
                                                     </button>
                                                 </td>
@@ -177,18 +191,28 @@ const Suppliers: React.FC<SuppliersProps> = ({ onGoToDashboard, onAddSupplier })
                             {/* Mobile View */}
                             <div className="lg:hidden divide-y divide-gray-50">
                                 {SUPPLIERS_DATA.map((item) => (
-                                    <div key={item.code} className="p-6 space-y-5">
+                                    <div
+                                        key={item.code}
+                                        className="p-6 space-y-5 cursor-pointer hover:bg-gray-50 transition-colors"
+                                        onClick={() => onViewDetail(item)}
+                                    >
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1 pr-4">
                                                 <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">{item.code}</p>
-                                                <h3 className="text-lg font-bold text-[#002244] leading-tight">{item.legalName}</h3>
+                                                <h3 className="text-lg font-semibold text-[#002244] leading-tight group-hover:text-[#004797]">{item.legalName}</h3>
                                                 <p className="text-xs text-gray-400 font-bold italic mt-1">{item.tradeName || 'No trade name'}</p>
                                             </div>
                                             <StatusBadge status={item.status} />
                                         </div>
                                         <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">JOINED {item.created}</div>
-                                            <button onClick={onGoToDashboard} className="flex items-center gap-2 px-5 py-2.5 bg-[#00925d] text-white text-xs font-bold rounded-xl active:scale-95 transition-all shadow-md cursor-pointer">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Prevents row click
+                                                    onGoToDashboard();
+                                                }}
+                                                className="flex items-center gap-2 px-5 py-2.5 bg-[#00925d] text-white text-xs font-bold rounded-xl active:scale-95 transition-all shadow-md cursor-pointer"
+                                            >
                                                 Go to Supplier <ArrowRight className="w-3.5 h-3.5" />
                                             </button>
                                         </div>

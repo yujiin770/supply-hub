@@ -10,7 +10,7 @@ const OnboardingOverview: React.FC = () => {
           <div className="inline-block px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold border border-emerald-100 uppercase tracking-[0.2em] mb-4">
             Status: Approved
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl font-semibold text-gray-900 tracking-tight">
             Onboarding
           </h1>
           <p className="text-lg text-gray-400 font-bold mt-2">John Canas</p>
