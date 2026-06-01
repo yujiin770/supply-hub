@@ -48,7 +48,7 @@ const AddSupplier: React.FC<AddSupplierProps> = ({ onBack }) => {
                             <div className="text-sm font-bold text-gray-900 leading-none">Mico Echaure</div>
                             <div className="text-[10px] font-bold text-blue-500 uppercase mt-1 tracking-wider">Super Admin</div>
                         </div>
-                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-[#004797] to-[#21BBD7] flex items-center justify-center text-white font-bold text-xs shadow-md">
+                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-linear-to-tr from-[#004797] to-[#21BBD7] flex items-center justify-center text-white font-bold text-xs shadow-md">
                             ME
                         </div>
                     </div>

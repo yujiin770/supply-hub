@@ -26,7 +26,7 @@ copy .env.example .env
 3. Run the app:
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 8000
 ```
 
 ## Migrations (Alembic)

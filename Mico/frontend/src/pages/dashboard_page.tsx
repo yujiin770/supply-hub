@@ -3,11 +3,28 @@ import { useAuthStore } from "../auth";
 import {
   useIncomingOrders,
   ORDER_STATUS_LABELS,
-  ORDER_STATUS_COLORS,
   type OrderStatus,
 } from "../features/api_clients/order_api";
 import { useMyListings } from "../features/api_clients/listing_api";
 import SupplierLayout from "../layouts/supplier_layout";
+import {
+  ClipboardList,
+  RefreshCw,
+  Box,
+  Building2,
+  Hourglass,
+  Bell,
+  CreditCard,
+  CheckSquare,
+  Truck,
+  Package,
+  X,
+  TrendingUp,
+  TrendingDown,
+  AlertCircle,
+  Ban,
+  type LucideIcon,
+} from "lucide-react";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -20,36 +37,6 @@ const STATUS_LIST: OrderStatus[] = [
   "DELIVERED",
   "CANCELLED",
 ];
-
-const STATUS_ICON: Record<OrderStatus, string> = {
-  PENDING: "⏳",
-  AWAITING_CONFIRMATION: "🔔",
-  AWAITING_PAYMENT: "💳",
-  CONFIRMED: "✅",
-  SHIPPED: "🚚",
-  DELIVERED: "📦",
-  CANCELLED: "✗",
-};
-
-const STATUS_BORDER: Record<OrderStatus, string> = {
-  PENDING: "border-amber-300",
-  AWAITING_CONFIRMATION: "border-orange-300",
-  AWAITING_PAYMENT: "border-sky-300",
-  CONFIRMED: "border-blue-300",
-  SHIPPED: "border-purple-300",
-  DELIVERED: "border-emerald-300",
-  CANCELLED: "border-slate-300",
-};
-
-const STATUS_BAR_BG: Record<OrderStatus, string> = {
-  PENDING: "bg-amber-400",
-  AWAITING_CONFIRMATION: "bg-orange-400",
-  AWAITING_PAYMENT: "bg-sky-400",
-  CONFIRMED: "bg-blue-400",
-  SHIPPED: "bg-purple-400",
-  DELIVERED: "bg-emerald-400",
-  CANCELLED: "bg-slate-400",
-};
 
 // ── Custom hooks ──────────────────────────────────────────────────────────────
 
@@ -116,7 +103,6 @@ interface ItemVelocity {
 }
 
 function useItemVelocity() {
-  // Fetch a generous batch of all recent orders (no status filter) for aggregation
   const q = useIncomingOrders({ limit: 100, offset: 0 });
 
   const items = useMemo<ItemVelocity[]>(() => {
@@ -155,199 +141,352 @@ function useItemVelocity() {
   };
 }
 
-// ── Item velocity table component ─────────────────────────────────────────────
+// ── Sub-Components mapped to the new layout ──────────────────────────────────
 
-function ItemVelocityTable({
-  title,
-  badge,
-  badgeBg,
-  items,
-  isLoading,
-  accentBar,
-  emptyText,
-}: {
+interface StatsCardProps {
   title: string;
-  badge: string;
-  badgeBg: string;
-  items: ItemVelocity[];
-  isLoading: boolean;
-  accentBar: string;
-  emptyText: string;
-}) {
-  const max = Math.max(...items.map((i) => i.totalQty), 1);
-  return (
-    <div className="bg-white border border-slate-200 rounded-xl px-6 py-5 flex flex-col">
-      <div className="flex items-center gap-2 mb-4">
-        <h3 className="text-sm font-semibold text-slate-700">{title}</h3>
-        <span
-          className={`text-xs font-semibold rounded-full px-2.5 py-0.5 ${badgeBg}`}
-        >
-          {badge}
-        </span>
-      </div>
-      {isLoading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-10 bg-slate-100 rounded-lg animate-pulse"
-            />
-          ))}
-        </div>
-      ) : items.length === 0 ? (
-        <p className="text-sm text-slate-400 py-6 text-center">{emptyText}</p>
-      ) : (
-        <div className="space-y-3">
-          {items.map((item, idx) => {
-            const pct = Math.max((item.totalQty / max) * 100, 4);
-            return (
-              <div key={item.pack_id} className="flex items-center gap-3">
-                <span className="w-5 text-xs font-bold text-slate-400 text-right shrink-0">
-                  {idx + 1}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-slate-800 truncate leading-tight">
-                    {item.name}
-                  </p>
-                  {item.detail && (
-                    <p className="text-xs text-slate-400 truncate leading-tight">
-                      {item.detail}
-                    </p>
-                  )}
-                  <div className="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${accentBar} transition-all duration-700`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-bold text-slate-800">
-                    {item.totalQty.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {item.orderCount} order{item.orderCount !== 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
+  value: number | string | null;
+  subtitle: string;
+  icon: LucideIcon;
+  borderColor?: string;
+  loading: boolean;
 }
 
-// ── Charts ────────────────────────────────────────────────────────────────────
+const StatsCard = ({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  borderColor = "border-l-4 border-l-[#21BBD7]",
+  loading,
+}: StatsCardProps) => {
+  return (
+    <div
+      className={`bg-white rounded-2xl border border-gray-100 ${borderColor} p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group`}
+    >
+      <div className="absolute inset-0 bg-linear-to-r from-[#21BBD7]/0 to-[#004797]/0 group-hover:from-[#21BBD7]/5 group-hover:to-[#004797]/5 transition-all duration-500"></div>
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <div className="w-12 h-12 rounded-xl bg-[#21BBD7]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+          <Icon className="w-6 h-6 text-[#004797] group-hover:text-[#21BBD7] transition-colors" />
+        </div>
+      </div>
+      <div className="relative z-10">
+        {loading || value === null ? (
+          <div className="h-9 w-24 bg-gray-200 rounded-md animate-pulse mb-2"></div>
+        ) : (
+          <div className="text-3xl md:text-4xl font-semibold text-gray-900 mb-2 tracking-tight">
+            {value}
+          </div>
+        )}
+        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+          {title}
+        </div>
+        <div className="text-xs text-gray-500 font-medium flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#21BBD7]"></span>
+          {subtitle}
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-[#21BBD7] to-[#004797] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    </div>
+  );
+};
 
-function OrdersBarChart({
+const OrdersByStatusGrid = ({
   counts,
   isLoading,
+  totalOrders,
 }: {
   counts: Record<OrderStatus, number>;
   isLoading: boolean;
-}) {
-  const max = Math.max(...STATUS_LIST.map((s) => counts[s]), 1);
+  totalOrders: number;
+}) => {
+  const statuses = [
+    { key: "PENDING" as OrderStatus, icon: Hourglass, color: "bg-amber-500" },
+    {
+      key: "AWAITING_CONFIRMATION" as OrderStatus,
+      icon: Bell,
+      color: "bg-orange-500",
+    },
+    {
+      key: "AWAITING_PAYMENT" as OrderStatus,
+      icon: CreditCard,
+      color: "bg-blue-500",
+    },
+    {
+      key: "CONFIRMED" as OrderStatus,
+      icon: CheckSquare,
+      color: "bg-[#21BBD7]",
+    },
+    { key: "SHIPPED" as OrderStatus, icon: Truck, color: "bg-purple-500" },
+    { key: "DELIVERED" as OrderStatus, icon: Package, color: "bg-emerald-500" },
+    { key: "CANCELLED" as OrderStatus, icon: X, color: "bg-gray-400" },
+  ];
+
   return (
-    <div className="space-y-3">
-      {STATUS_LIST.map((status) => {
-        const count = counts[status];
-        const pct = (count / max) * 100;
-        const { text } = ORDER_STATUS_COLORS[status];
-        return (
-          <div key={status} className="flex items-center gap-3">
-            <div className="w-44 text-xs text-slate-500 text-right shrink-0 truncate">
-              {STATUS_ICON[status]} {ORDER_STATUS_LABELS[status]}
-            </div>
-            <div className="flex-1 bg-slate-100 rounded-full h-5 overflow-hidden">
-              {isLoading ? (
-                <div className="h-full w-1/3 rounded-full bg-slate-200 animate-pulse" />
-              ) : (
-                <div
-                  className={`h-full rounded-full ${STATUS_BAR_BG[status]} transition-all duration-700`}
-                  style={{ width: `${pct}%` }}
-                />
-              )}
-            </div>
+    <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 p-6 h-full">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="text-lg font-bold text-gray-800">Orders by Status</h3>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Order distribution overview
+          </p>
+        </div>
+        <div className="bg-[#004797] text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm">
+          Total: {isLoading ? "…" : totalOrders}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {statuses.map((status) => {
+          const actualCount = counts[status.key];
+          const Icon = status.icon;
+          return (
             <div
-              className={`w-10 text-right text-sm font-bold ${text} shrink-0`}
+              key={status.key}
+              className="group relative overflow-hidden rounded-xl border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
             >
-              {isLoading ? "…" : count}
+              <div className={`h-1 w-full ${status.color}`}></div>
+              <div className="p-4">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3 bg-gray-50">
+                  <Icon className="w-4 h-4 text-gray-600" />
+                </div>
+                {isLoading ? (
+                  <div className="h-8 w-12 bg-gray-100 rounded animate-pulse mb-1"></div>
+                ) : (
+                  <div className="text-2xl font-bold text-gray-800 mb-1">
+                    {actualCount}
+                  </div>
+                )}
+                <div className="text-xs text-gray-500 font-medium truncate">
+                  {ORDER_STATUS_LABELS[status.key]}
+                </div>
+                <div className="mt-3 h-1 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${status.color} rounded-full transition-all duration-500`}
+                    style={{
+                      width:
+                        totalOrders === 0 || isLoading
+                          ? "0%"
+                          : `${(actualCount / totalOrders) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
-}
+};
 
-function StockOverviewChart({
+const StockOverviewCard = ({
   withStock,
   noStock,
-  disabled,
+  disabledCount,
   isLoading,
 }: {
   withStock: number;
   noStock: number;
-  disabled: number;
+  disabledCount: number;
   isLoading: boolean;
-}) {
-  const bars = [
+}) => {
+  const total = withStock + noStock + disabledCount;
+  const items = [
     {
       label: "Has Stock",
       count: withStock,
-      bg: "bg-emerald-500",
-      text: "text-emerald-700",
+      icon: Package,
+      color: "from-green-400 to-green-600",
+      textColor: "text-green-600",
     },
     {
       label: "No Stock",
       count: noStock,
-      bg: "bg-amber-400",
-      text: "text-amber-700",
+      icon: AlertCircle,
+      color: "from-red-400 to-red-600",
+      textColor: "text-red-600",
     },
     {
       label: "Disabled",
-      count: disabled,
-      bg: "bg-slate-400",
-      text: "text-slate-600",
+      count: disabledCount,
+      icon: Ban,
+      color: "from-gray-400 to-gray-600",
+      textColor: "text-gray-600",
     },
   ];
-  const max = Math.max(...bars.map((b) => b.count), 1);
 
   return (
-    <div className="flex items-end gap-6 h-44 pt-4">
-      {bars.map((bar) => {
-        const heightPct = (bar.count / max) * 100;
-        return (
-          <div
-            key={bar.label}
-            className="flex-1 flex flex-col items-center gap-2"
-          >
-            <span className={`text-sm font-bold ${bar.text}`}>
-              {isLoading ? "…" : bar.count}
-            </span>
+    <div className="bg-white rounded-3xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 p-6 flex flex-col h-full hover:shadow-md transition-shadow duration-300">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-lg font-bold text-gray-800">Stock Overview</h3>
+        <div className="bg-gray-100 px-2.5 py-1 rounded-lg">
+          <span className="text-xs font-bold text-gray-600">
+            Total: {isLoading ? "…" : total}
+          </span>
+        </div>
+      </div>
+      <p className="text-sm text-gray-500 mb-6">
+        Listings breakdown by availability
+      </p>
+      <div className="grid grid-cols-3 gap-4 sm:gap-8 flex-1 content-end pb-4">
+        {items.map((item) => (
+          <div key={item.label} className="flex flex-col items-center group">
+            <div className={`flex items-center gap-1 mb-2 ${item.textColor}`}>
+              <item.icon className="w-4 h-4" />
+              <span className="text-lg font-bold">
+                {isLoading ? "…" : item.count}
+              </span>
+            </div>
             <div
-              className="w-full bg-slate-100 rounded-t-lg overflow-hidden flex flex-col justify-end"
-              style={{ height: "120px" }}
+              className={`w-full h-32 rounded-xl transition-all duration-300 ${
+                item.count > 0 && !isLoading
+                  ? `bg-linear-to-b ${item.color} shadow-sm`
+                  : "bg-gray-100"
+              }`}
             >
-              {isLoading ? (
-                <div className="h-1/2 w-full bg-slate-200 animate-pulse" />
-              ) : (
-                <div
-                  className={`w-full ${bar.bg} rounded-t-lg transition-all duration-700`}
-                  style={{ height: `${heightPct}%` }}
-                />
+              {item.count > 0 && !isLoading && (
+                <div className="w-full h-full flex items-end justify-center pb-2">
+                  <span className="text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                    {item.count} items
+                  </span>
+                </div>
               )}
             </div>
-            <span className="text-xs text-slate-500 text-center leading-tight">
-              {bar.label}
+            <span className="text-xs font-medium text-gray-500 mt-3 group-hover:text-gray-700 transition-colors text-center leading-tight">
+              {item.label}
             </span>
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
-}
+};
+
+const TopItemsTable = ({
+  type,
+  items,
+  isLoading,
+}: {
+  type: "fast" | "slow";
+  items: ItemVelocity[];
+  isLoading: boolean;
+}) => {
+  const isFast = type === "fast";
+  return (
+    <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 p-6 h-full min-h-50">
+      <div className="flex items-center gap-3 mb-6">
+        <div
+          className={`p-2 rounded-lg ${
+            isFast
+              ? "bg-[#F0FAFB] text-[#21BBD7]"
+              : "bg-orange-50 text-orange-500"
+          }`}
+        >
+          {isFast ? (
+            <TrendingUp className="w-5 h-5" />
+          ) : (
+            <TrendingDown className="w-5 h-5" />
+          )}
+        </div>
+        <h3 className="text-lg font-bold text-gray-800">
+          {isFast ? "Fast-Moving Items" : "Slow-Moving Items"}
+        </h3>
+      </div>
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-14 bg-gray-50 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : items.length === 0 ? (
+        <div className="h-32 flex items-center justify-center border-2 border-gray-100 rounded-xl">
+          <p className="text-gray-400 text-sm font-medium">
+            Not enough data available
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((item, idx) => (
+            <div
+              key={item.pack_id}
+              className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100"
+            >
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  idx === 0
+                    ? "bg-[#004797] text-white"
+                    : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {idx + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-bold text-gray-800 truncate">
+                  {item.name}
+                </div>
+                <div className="text-xs text-gray-400 font-medium truncate">
+                  {item.detail}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-lg font-semibold text-[#004797] leading-none">
+                  {item.totalQty}
+                </div>
+                <div className="text-[10px] text-gray-400 font-bold uppercase mt-1">
+                  {item.orderCount} Order{item.orderCount !== 1 ? "s" : ""}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const GlanceProgressMetric = ({
+  label,
+  value,
+  total,
+  color,
+  loading,
+}: {
+  label: string;
+  value: number;
+  total: number;
+  color: string;
+  loading: boolean;
+}) => {
+  const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+  return (
+    <div className="flex flex-col gap-1.5 flex-1">
+      <div className="flex justify-between items-center px-1">
+        <span className="text-[13px] font-medium text-gray-500">{label}</span>
+        <span className={`text-[13px] font-bold ${color}`}>
+          {loading ? "…" : `${percent}%`}
+        </span>
+      </div>
+      <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+        {loading ? (
+          <div className="h-full w-1/2 bg-gray-200 animate-pulse" />
+        ) : (
+          <div
+            className={`h-full ${color.replace("text-", "bg-")} transition-all duration-1000`}
+            style={{ width: `${percent}%` }}
+          />
+        )}
+      </div>
+      <div className="flex items-baseline gap-1.5 px-1 mt-1">
+        <span className="text-2xl font-bold text-gray-900 leading-none">
+          {loading ? "…" : value}
+        </span>
+        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">
+          of {loading ? "…" : total}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 // ── Main component ────────────────────────────────────────────────────────────
 
@@ -380,220 +519,116 @@ export default function DashboardPage() {
 
   return (
     <SupplierLayout>
-      <div className="space-y-8">
-        {/* Page title */}
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Dashboard</h2>
-          <p className="text-slate-500 text-sm mt-1">
-            Welcome back, {user?.full_name ?? user?.email}. Here's your
-            overview.
-          </p>
-        </div>
+      {/* Page Title */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-sm text-gray-500 font-medium mt-1">
+          Welcome back, {user?.full_name ?? user?.email}, Here's your overview
+        </p>
+      </div>
 
-        {/* ── Order status cards ─────────────────────────────────────────── */}
-        <div className="grid grid-cols-4 lg:grid-cols-7 gap-3">
-          {STATUS_LIST.map((status) => {
-            const { text } = ORDER_STATUS_COLORS[status];
-            return (
-              <div
-                key={status}
-                className={`bg-white border-2 ${STATUS_BORDER[status]} rounded-xl px-4 py-4 flex flex-col gap-1`}
-              >
-                <span className="text-xl">{STATUS_ICON[status]}</span>
-                <p className={`text-2xl font-extrabold ${text}`}>
-                  {ordersLoading ? (
-                    <span className="inline-block w-8 h-7 bg-slate-200 rounded animate-pulse" />
-                  ) : (
-                    counts[status]
-                  )}
-                </p>
-                <p className="text-xs text-slate-500 leading-tight">
-                  {ORDER_STATUS_LABELS[status]}
-                </p>
-              </div>
-            );
-          })}
-        </div>
+      {/* Stats Cards Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <StatsCard
+          title="TOTAL ORDERS"
+          value={totalOrders}
+          subtitle="All statuses combined"
+          icon={ClipboardList}
+          loading={ordersLoading}
+        />
+        <StatsCard
+          title="ACTIVE ORDERS"
+          value={totalOrderItems}
+          subtitle="Excl. cancelled"
+          icon={RefreshCw}
+          loading={ordersLoading}
+          borderColor="border-l-4 border-l-blue-500"
+        />
+        <StatsCard
+          title="CATALOG ITEMS"
+          value={totalListings}
+          subtitle="Total listings"
+          icon={Box}
+          loading={listingsQ.isLoading}
+          borderColor="border-l-4 border-l-emerald-500"
+        />
+        <StatsCard
+          title="STOCK UNITS"
+          value={totalStockUnits.toLocaleString()}
+          subtitle="Sum of stock_qty"
+          icon={Building2}
+          loading={listingsQ.isLoading}
+          borderColor="border-l-4 border-l-purple-500"
+        />
+      </div>
 
-        {/* ── Summary metrics row ────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            {
-              label: "Total Orders",
-              value: ordersLoading ? null : totalOrders,
-              sub: "All statuses combined",
-              color: "text-slate-900",
-              icon: "📋",
-            },
-            {
-              label: "Active Orders",
-              value: ordersLoading ? null : totalOrderItems,
-              sub: "Excl. cancelled",
-              color: "text-blue-700",
-              icon: "🔄",
-            },
-            {
-              label: "Catalog Items",
-              value: listingsQ.isLoading ? null : totalListings,
-              sub: "Total listings",
-              color: "text-emerald-700",
-              icon: "📦",
-            },
-            {
-              label: "Total Stock Units",
-              value: listingsQ.isLoading
-                ? null
-                : totalStockUnits.toLocaleString(),
-              sub: "Sum of stock_qty",
-              color: "text-purple-700",
-              icon: "🏭",
-            },
-          ].map(({ label, value, sub, color, icon }) => (
-            <div
-              key={label}
-              className="bg-white border border-slate-200 rounded-xl px-5 py-5"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">{icon}</span>
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  {label}
-                </span>
-              </div>
-              {value === null ? (
-                <div className="h-7 w-20 bg-slate-200 rounded animate-pulse" />
-              ) : (
-                <p className={`text-3xl font-extrabold ${color} leading-none`}>
-                  {value}
-                </p>
-              )}
-              <p className="text-xs text-slate-400 mt-1">{sub}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Charts ────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Orders by status — bar chart (takes 2/3 width) */}
-          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl px-6 py-5">
-            <h3 className="text-sm font-semibold text-slate-700 mb-5">
-              Orders by Status
-            </h3>
-            <OrdersBarChart counts={counts} isLoading={ordersLoading} />
-          </div>
-
-          {/* Stock overview — column chart (takes 1/3 width) */}
-          <div className="bg-white border border-slate-200 rounded-xl px-6 py-5">
-            <h3 className="text-sm font-semibold text-slate-700 mb-1">
-              Stock Overview
-            </h3>
-            <p className="text-xs text-slate-400 mb-2">
-              Listings breakdown by availability
-            </p>
-            <StockOverviewChart
-              withStock={withStock}
-              noStock={noStock}
-              disabled={disabledCount}
-              isLoading={listingsQ.isLoading}
-            />
-          </div>
-        </div>
-
-        {/* ── Fast vs Slow movers ────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ItemVelocityTable
-            title="Fast-Moving Items"
-            badge="Top 5"
-            badgeBg="bg-emerald-100 text-emerald-700"
-            items={fast}
-            isLoading={velocityLoading}
-            accentBar="bg-emerald-500"
-            emptyText="No order data yet. Start receiving orders to see fast movers."
-          />
-          <ItemVelocityTable
-            title="Slow-Moving Items"
-            badge="Bottom 5"
-            badgeBg="bg-amber-100 text-amber-700"
-            items={slow}
-            isLoading={velocityLoading}
-            accentBar="bg-amber-400"
-            emptyText="Not enough data yet — need more than 5 distinct ordered items."
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <OrdersByStatusGrid
+            counts={counts}
+            isLoading={ordersLoading}
+            totalOrders={totalOrders}
           />
         </div>
+        <div className="lg:col-span-1">
+          <StockOverviewCard
+            withStock={withStock}
+            noStock={noStock}
+            disabledCount={disabledCount}
+            isLoading={listingsQ.isLoading}
+          />
+        </div>
+      </div>
 
-        {/* ── Orders vs Stock comparison ─────────────────────────────────── */}
-        <div className="bg-white border border-slate-200 rounded-xl px-6 py-5">
-          <h3 className="text-sm font-semibold text-slate-700 mb-1">
+      {/* Item Velocity Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <TopItemsTable type="fast" items={fast} isLoading={velocityLoading} />
+        <TopItemsTable type="slow" items={slow} isLoading={velocityLoading} />
+      </div>
+
+      {/* Orders vs Stock Section */}
+      <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-[0_2px_12px_rgba(0,0,0,0.02)] mb-12">
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-[#004797]">
             Orders vs Stock at a Glance
           </h3>
-          <p className="text-xs text-slate-400 mb-6">
+          <p className="text-[13px] text-gray-400 font-medium mt-0.5">
             Active order pipeline compared to catalog readiness
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[
-              {
-                label: "Pending Orders",
-                value: counts["PENDING"],
-                total: totalOrders || 1,
-                bg: "bg-amber-400",
-                text: "text-amber-700",
-                loading: ordersLoading,
-              },
-              {
-                label: "Orders Confirmed",
-                value: counts["CONFIRMED"] + counts["SHIPPED"],
-                total: totalOrders || 1,
-                bg: "bg-blue-400",
-                text: "text-blue-700",
-                loading: ordersLoading,
-              },
-              {
-                label: "Catalog In-Stock",
-                value: withStock,
-                total: totalListings || 1,
-                bg: "bg-emerald-400",
-                text: "text-emerald-700",
-                loading: listingsQ.isLoading,
-              },
-              {
-                label: "Catalog Out-of-Stock",
-                value: noStock,
-                total: totalListings || 1,
-                bg: "bg-orange-400",
-                text: "text-orange-700",
-                loading: listingsQ.isLoading,
-              },
-            ].map(({ label, value, total, bg, text, loading }) => {
-              const pct = total > 0 ? Math.round((value / total) * 100) : 0;
-              return (
-                <div key={label}>
-                  <div className="flex items-end justify-between mb-1.5">
-                    <span className="text-xs text-slate-500">{label}</span>
-                    <span className={`text-xs font-semibold ${text}`}>
-                      {loading ? "…" : `${pct}%`}
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                    {loading ? (
-                      <div className="h-full w-1/2 bg-slate-200 animate-pulse" />
-                    ) : (
-                      <div
-                        className={`h-full rounded-full ${bg} transition-all duration-700`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className={`text-lg font-bold ${text}`}>
-                      {loading ? "…" : value}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      of {loading ? "…" : total}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <GlanceProgressMetric
+            label="Pending Orders"
+            value={counts["PENDING"]}
+            total={totalOrders || 1}
+            color="text-orange-500"
+            loading={ordersLoading}
+          />
+          <GlanceProgressMetric
+            label="Orders Confirmed"
+            value={counts["CONFIRMED"] + counts["SHIPPED"]}
+            total={totalOrders || 1}
+            color="text-blue-500"
+            loading={ordersLoading}
+          />
+          <GlanceProgressMetric
+            label="Catalog In-Stock"
+            value={withStock}
+            total={totalListings || 1}
+            color="text-emerald-500"
+            loading={listingsQ.isLoading}
+          />
+          <GlanceProgressMetric
+            label="Catalog Out-of-Stock"
+            value={noStock}
+            total={totalListings || 1}
+            color="text-orange-600"
+            loading={listingsQ.isLoading}
+          />
         </div>
       </div>
     </SupplierLayout>

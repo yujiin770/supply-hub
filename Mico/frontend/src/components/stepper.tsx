@@ -26,7 +26,7 @@ export default function Stepper({ steps, current }: StepperProps) {
                 />
                 {/* circle */}
                 <div
-                  className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold border-2 transition-colors
+                  className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-sm font-bold border-2 transition-colors
                     ${
                       done
                         ? "bg-emerald-600 border-emerald-600 text-white"

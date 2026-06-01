@@ -11,6 +11,7 @@ import {
   type MyKycDocumentResponse,
 } from "../../features/api_clients/supplier_api";
 import SupplierLayout from "../../layouts/supplier_layout";
+import { FileText, UploadCloud, ChevronDown, FileCheck } from "lucide-react";
 
 const DOC_TYPE_LABELS: Record<KycDocType, string> = {
   DTI_SEC: "DTI / SEC Registration",
@@ -117,46 +118,73 @@ export default function KycPage() {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      <div className="max-w-2xl space-y-4">
+      <div className="pb-20 max-w-8xl mx-auto space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">KYC Documents</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Upload and manage your verification documents.
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+            KYC Documents
+          </h1>
+          <p className="text-sm text-gray-500 font-medium mt-1">
+            Upload and manage your business verification documents to maintain
+            an active status.
           </p>
         </div>
 
         {/* Completion progress */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="font-medium text-slate-700">
-              Required documents submitted
-            </span>
-            <span
-              className={`font-bold ${allSubmitted ? "text-emerald-600" : "text-slate-600"}`}
-            >
-              {submittedRequired.length} / {REQUIRED_TYPES.length}
-            </span>
+        <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800">
+                Required documents submitted
+              </h2>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mt-1">
+                Status:{" "}
+                {allSubmitted ? "Awaiting Review" : "Information Required"}
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="text-3xl font-semibold text-[#004797]">
+                {submittedRequired.length} / {REQUIRED_TYPES.length}
+              </span>
+              <div className="w-48 h-2 bg-gray-100 rounded-full mt-2 overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-1000 ${allSubmitted ? "bg-emerald-500" : "bg-amber-400"}`}
+                  style={{ width: `${pct}%` }}
+                ></div>
+              </div>
+            </div>
           </div>
-          <div className="w-full bg-slate-100 rounded-full h-2.5">
-            <div
-              className={`h-2.5 rounded-full transition-all ${allSubmitted ? "bg-emerald-500" : "bg-amber-400"}`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4">
+
+          {/* Checklist Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {REQUIRED_TYPES.map((t) => {
               const group = grouped.get(t);
               const latest = group?.[0];
               const ok = latest && latest.status !== "REJECTED";
+              const isRejected = latest?.status === "REJECTED";
               return (
                 <div
                   key={t}
-                  className={`flex items-center gap-2 text-xs rounded-lg px-3 py-2 ${ok ? "bg-emerald-50 text-emerald-700" : latest?.status === "REJECTED" ? "bg-red-50 text-red-600" : "bg-slate-50 text-slate-500"}`}
+                  className="flex items-center gap-3 p-4 rounded-2xl bg-gray-50/50 border border-gray-100 transition-all hover:bg-white hover:shadow-sm group"
                 >
-                  <span>
-                    {ok ? "✓" : latest?.status === "REJECTED" ? "✗" : "○"}
-                  </span>
-                  <span className="truncate">
+                  <div
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors shrink-0
+                      ${
+                        ok
+                          ? "bg-emerald-500 border-emerald-500 text-white"
+                          : isRejected
+                            ? "bg-rose-500 border-rose-500 text-white"
+                            : "bg-white border-gray-200 text-gray-300 group-hover:border-amber-400"
+                      }`}
+                  >
+                    {ok ? (
+                      <span className="text-xs font-bold select-none">✓</span>
+                    ) : isRejected ? (
+                      <span className="text-xs font-bold select-none">✕</span>
+                    ) : (
+                      <div className="w-2 h-2 rounded-full bg-current"></div>
+                    )}
+                  </div>
+                  <span className="text-xs font-bold text-gray-600 uppercase tracking-tight truncate">
                     {DOC_TYPE_LABELS[t].split(" ")[0]}
                   </span>
                 </div>
@@ -185,175 +213,226 @@ export default function KycPage() {
           </div>
         )}
 
-        {/* Upload form */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h2 className="font-semibold text-slate-800 mb-4">Upload Document</h2>
-          <form ref={formRef} onSubmit={handleUpload} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Document Type <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={docType}
-                onChange={(e) => setDocType(e.target.value as KycDocType)}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-              >
-                <optgroup label="Required">
-                  {REQUIRED_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {DOC_TYPE_LABELS[t]}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="Optional">
-                  {OPTIONAL_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {DOC_TYPE_LABELS[t]}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-              {grouped.has(docType) && (
-                <p className="mt-1 text-xs text-amber-600">
-                  ⚠ You already have a {DOC_TYPE_LABELS[docType]} document.
-                  Uploading again adds a new record visible to admin.
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                File <span className="text-red-500">*</span>
-                <span className="ml-2 font-normal text-slate-400">
-                  (PDF, JPEG, PNG — max 10 MB)
-                </span>
-              </label>
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png,.webp"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                className="w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700 file:text-sm file:font-medium hover:file:bg-emerald-100 cursor-pointer"
-              />
-              {file && (
-                <p className="mt-1 text-xs text-slate-500">
-                  {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                </p>
-              )}
-            </div>
-            <button
-              type="submit"
-              disabled={!file || uploadMutation.isPending}
-              className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
-            >
-              {uploadMutation.isPending ? "Uploading…" : "Upload Document"}
-            </button>
-          </form>
-        </div>
+        {/* START OF GRID LAYOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* --- LEFT COLUMN: Upload Section (5 cols) --- */}
+          <div className="lg:col-span-5 space-y-6">
+            {/* Upload form */}
+            <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+              <h3 className="text-base font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                <UploadCloud className="w-5 h-5 text-blue-500" />
+                Upload Document
+              </h3>
 
-        {/* Documents grouped by type */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100">
-            <h2 className="font-semibold text-slate-800">Uploaded Documents</h2>
-          </div>
-          {isLoading ? (
-            <div className="text-center py-12 text-slate-400 text-sm">
-              Loading…
-            </div>
-          ) : docs.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 text-sm">
-              No documents uploaded yet.
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {ALL_TYPES.filter((t) => grouped.has(t)).map((t) => {
-                const group = grouped.get(t)!;
-                const latestRejected = group[0]?.status === "REJECTED";
-                return (
-                  <div key={t} className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-semibold text-slate-800">
-                        {DOC_TYPE_LABELS[t]}
-                      </span>
-                      {!REQUIRED_TYPES.includes(t) && (
-                        <span className="text-xs bg-slate-100 text-slate-500 rounded px-1.5 py-0.5">
-                          optional
-                        </span>
-                      )}
-                      {latestRejected && (
-                        <span className="text-xs bg-red-50 text-red-600 rounded px-1.5 py-0.5 font-medium">
-                          ⚠ Re-upload needed
-                        </span>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      {group.map((doc, idx) => (
-                        <div
-                          key={doc.id}
-                          className={`flex items-center gap-3 text-sm rounded-lg px-3 py-2 ${idx === 0 ? "bg-slate-50 border border-slate-200" : "border border-dashed border-slate-200 opacity-60"}`}
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() =>
-                                  setPreview({
-                                    url: doc.file_url,
-                                    filename: doc.original_filename,
-                                  })
-                                }
-                                className="text-emerald-600 hover:underline text-xs truncate max-w-[200px] text-left"
-                              >
-                                {doc.original_filename}
-                              </button>
-                              {idx === 0 && group.length > 1 && (
-                                <span className="text-xs text-slate-400">
-                                  (latest)
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <KycDocStatusBadge status={doc.status} />
-                              <span className="text-xs text-slate-400">
-                                {fmt(doc.uploaded_at)}
-                              </span>
-                            </div>
-                            {doc.remarks && (
-                              <p className="text-xs text-red-600 mt-0.5 italic">
-                                Admin note: {doc.remarks}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            {doc.status === "REJECTED" && idx === 0 && (
-                              <button
-                                onClick={() => {
-                                  setDocType(t);
-                                  formRef.current?.scrollIntoView({
-                                    behavior: "smooth",
-                                  });
-                                }}
-                                className="text-xs bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 rounded-lg px-2 py-1 font-medium transition-colors"
-                              >
-                                Re-upload
-                              </button>
-                            )}
-                            {doc.status === "SUBMITTED" && (
-                              <button
-                                onClick={() => setDeleteTarget(doc.id)}
-                                disabled={deleteMutation.isPending}
-                                className="text-xs text-red-500 hover:text-red-700 font-medium disabled:opacity-50"
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+              <form ref={formRef} onSubmit={handleUpload} className="space-y-5">
+                {/* Document Type Dropdown */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block">
+                    Document Type <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={docType}
+                      onChange={(e) => setDocType(e.target.value as KycDocType)}
+                      className="w-full appearance-none pl-4 pr-10 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-gray-700 cursor-pointer focus:bg-white focus:border-blue-500/30 transition-all outline-none"
+                    >
+                      <optgroup label="Required" className="text-[#004797]">
+                        {REQUIRED_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {DOC_TYPE_LABELS[t]}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Optional" className="text-gray-400">
+                        {OPTIONAL_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {DOC_TYPE_LABELS[t]}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
-                );
-              })}
+                  {grouped.has(docType) && (
+                    <p className="mt-1 text-xs text-amber-600 font-semibold leading-relaxed">
+                      ⚠ You already have a {DOC_TYPE_LABELS[docType]} document.
+                      Uploading again adds a new record visible to admin.
+                    </p>
+                  )}
+                </div>
+
+                {/* File Drop Zone */}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest flex items-center justify-between">
+                    <span>
+                      File <span className="text-rose-500">*</span>
+                    </span>
+                    <span className="text-blue-500 lowercase font-medium tracking-normal">
+                      (PDF, JPEG, PNG — max 10 MB)
+                    </span>
+                  </label>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                    className="hidden"
+                  />
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                  >
+                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-100 transition-colors">
+                      <FileText className="w-6 h-6 text-gray-400 group-hover:text-blue-600" />
+                    </div>
+                    <p className="text-sm font-bold text-gray-700 truncate max-w-full px-2">
+                      {file ? file.name : "Choose file or drag here"}
+                    </p>
+                    {file && (
+                      <p className="mt-1.5 text-xs text-slate-400 font-bold uppercase tracking-wider">
+                        ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={!file || uploadMutation.isPending}
+                  className="w-full bg-[#004797] hover:bg-black disabled:opacity-50 text-white py-4 rounded-xl cursor-pointer font-bold transition-all shadow-lg shadow-blue-900/10 active:scale-[0.98] border-none outline-none"
+                >
+                  {uploadMutation.isPending ? "Uploading…" : "Upload Document"}
+                </button>
+              </form>
             </div>
-          )}
+          </div>
+
+          {/* --- RIGHT COLUMN: Uploaded List (7 cols) --- */}
+          <div className="lg:col-span-7">
+            {/* Documents grouped by type */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col min-h-125">
+              <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
+                <h3 className="text-base font-semibold text-gray-800">
+                  Uploaded Documents
+                </h3>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  {docs.length} Files Total
+                </span>
+              </div>
+
+              {isLoading ? (
+                <div className="flex-1 flex flex-col items-center justify-center p-20 space-y-4">
+                  <div className="w-10 h-10 border-4 border-gray-100 border-t-[#004797] rounded-full animate-spin"></div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    Syncing Documents...
+                  </p>
+                </div>
+              ) : docs.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+                  <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-4">
+                    <FileCheck className="w-10 h-10 text-gray-200" />
+                  </div>
+                  <h4 className="text-base font-semibold text-gray-900">
+                    No documents uploaded yet
+                  </h4>
+                  <p className="text-sm text-gray-400 font-medium mt-1 max-w-60">
+                    Your uploaded files will appear here for review and
+                    management.
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-50">
+                  {ALL_TYPES.filter((t) => grouped.has(t)).map((t) => {
+                    const group = grouped.get(t)!;
+                    const latestRejected = group[0]?.status === "REJECTED";
+                    return (
+                      <div key={t} className="p-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-sm font-semibold text-slate-800">
+                            {DOC_TYPE_LABELS[t]}
+                          </span>
+                          {!REQUIRED_TYPES.includes(t) && (
+                            <span className="text-[10px] bg-slate-100 text-slate-500 rounded-md px-1.5 py-0.5 font-bold uppercase tracking-wider">
+                              optional
+                            </span>
+                          )}
+                          {latestRejected && (
+                            <span className="text-[10px] bg-red-50 text-red-600 rounded-md px-1.5 py-0.5 font-bold uppercase tracking-wider">
+                              ⚠ Re-upload needed
+                            </span>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          {group.map((doc, idx) => (
+                            <div
+                              key={doc.id}
+                              className={`flex items-center gap-3 text-sm rounded-lg px-4 py-3 ${idx === 0 ? "bg-slate-50 border border-slate-200" : "border border-dashed border-slate-200 opacity-60"}`}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() =>
+                                      setPreview({
+                                        url: doc.file_url,
+                                        filename: doc.original_filename,
+                                      })
+                                    }
+                                    className="text-[#004797] hover:underline text-xs font-bold truncate max-w-50 text-left bg-transparent border-none outline-none cursor-pointer"
+                                  >
+                                    {doc.original_filename}
+                                  </button>
+                                  {idx === 0 && group.length > 1 && (
+                                    <span className="text-xs text-slate-400 font-semibold">
+                                      (latest)
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <KycDocStatusBadge status={doc.status} />
+                                  <span className="text-xs text-slate-400 font-semibold">
+                                    {fmt(doc.uploaded_at)}
+                                  </span>
+                                </div>
+                                {doc.remarks && (
+                                  <p className="text-xs text-red-600 mt-1 italic font-medium">
+                                    Admin note: {doc.remarks}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {doc.status === "REJECTED" && idx === 0 && (
+                                  <button
+                                    onClick={() => {
+                                      setDocType(t);
+                                      formRef.current?.scrollIntoView({
+                                        behavior: "smooth",
+                                      });
+                                    }}
+                                    className="text-xs bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 rounded-xl px-3 py-1.5 font-bold transition-all cursor-pointer border-none outline-none"
+                                  >
+                                    Re-upload
+                                  </button>
+                                )}
+                                {doc.status === "SUBMITTED" && (
+                                  <button
+                                    onClick={() => setDeleteTarget(doc.id)}
+                                    disabled={deleteMutation.isPending}
+                                    className="text-xs text-red-500 hover:text-red-700 font-bold disabled:opacity-50 bg-transparent border-none outline-none cursor-pointer"
+                                  >
+                                    Delete
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </SupplierLayout>

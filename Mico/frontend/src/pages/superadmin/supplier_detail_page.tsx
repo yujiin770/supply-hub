@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../../auth";
-import { KycDocStatusBadge, SupplierStatusBadge } from "../../components/badge";
+import { KycDocStatusBadge } from "../../components/badge";
 import ConfirmModal from "../../components/confirm_modal";
 import DocPreviewModal from "../../components/doc_preview_modal";
 import ReasonModal from "../../components/reason_modal";
@@ -19,6 +19,17 @@ import {
 } from "../../features/api_clients/superadmin_api";
 import AppLayout from "../../layouts/app_layout";
 import { toast } from "../../lib/toast";
+import {
+  ArrowLeft,
+  Building2,
+  ChevronRight,
+  AlertTriangle,
+  FileText,
+  ShieldCheck,
+  Clock,
+  X,
+  CheckCircle2,
+} from "lucide-react";
 
 const DOC_LABELS: Record<string, string> = {
   DTI_SEC: "DTI / SEC",
@@ -57,16 +68,26 @@ function stepIndex(status: SupplierStatus): number {
   }
 }
 
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4 py-3 border-b border-slate-100 last:border-0">
-      <span className="text-sm font-medium text-slate-500 sm:w-44 shrink-0">
-        {label}
-      </span>
-      <span className="text-sm text-slate-900">{value ?? "—"}</span>
+const DataField = ({
+  label,
+  value,
+  isRed = false,
+}: {
+  label: string;
+  value: string | React.ReactNode;
+  isRed?: boolean;
+}) => (
+  <div className="space-y-1.5">
+    <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block">
+      {label}
+    </label>
+    <div
+      className={`text-sm font-semibold ${isRed ? "text-rose-500" : "text-gray-700"} flex items-center gap-1.5`}
+    >
+      {value || "—"}
     </div>
-  );
-}
+  </div>
+);
 
 function fmt(iso: string | null) {
   if (!iso) return "—";
@@ -79,7 +100,7 @@ function fmt(iso: string | null) {
   });
 }
 
-// ── Reject supplier modal ─────────────────────────────────────────────────────
+// ── Reject Supplier Modal ────────────────────────────────────────────────────
 function RejectSupplierModal({
   onClose,
   onSubmit,
@@ -103,35 +124,34 @@ function RejectSupplierModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-1">
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-xl w-full max-w-md p-8">
+        <h3 className="text-xl font-semibold text-gray-900 mb-1">
           Reject Supplier
         </h3>
-        <p className="text-sm text-slate-500 mb-5">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
           Provide a clear reason — visible to the supplier.
         </p>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}
             placeholder="Missing required documents, incorrect information…"
             required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm
-                       focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
+            className="w-full rounded-xl border border-transparent bg-gray-50 px-4 py-3 text-sm font-medium focus:bg-white focus:border-rose-500/30 focus:ring-4 focus:ring-rose-500/5 transition-all outline-none resize-none"
           />
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-2">
             <button
               type="submit"
               disabled={loading || !reason.trim()}
-              className="flex-1 bg-red-600 disabled:opacity-50 hover:bg-red-700 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
+              className="flex-1 bg-rose-600 disabled:opacity-50 hover:bg-rose-700 text-white text-sm font-bold py-3.5 rounded-xl transition-all cursor-pointer border-none outline-none"
             >
               {loading ? "Rejecting…" : "Reject Supplier"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-slate-300 text-slate-700 text-sm py-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+              className="flex-1 border border-gray-200 text-gray-500 text-sm font-bold py-3.5 rounded-xl hover:bg-gray-50 transition-all cursor-pointer bg-transparent outline-none"
             >
               Cancel
             </button>
@@ -142,7 +162,7 @@ function RejectSupplierModal({
   );
 }
 
-// ── Main page ────────────────────────────────────────────────────────────────
+// ── Main Page Component ──────────────────────────────────────────────────────
 export default function SupplierDetailPage() {
   const { id } = useParams<{ id: string }>();
   const token = useAuthStore((s) => s.accessToken)!;
@@ -171,12 +191,10 @@ export default function SupplierDetailPage() {
   async function load() {
     if (!id) return;
     try {
-      // Fetch KYC detail (works for SUPERADMIN) + plain supplier as fallback
       const kd = await adminApi.getSupplierKyc(id, token);
       setKycData(kd);
       setSupplier(kd.supplier);
     } catch {
-      // Fall back to plain supplier view if KYC fetch fails (e.g., not yet submitted)
       try {
         const s = await superadminApi.get(id, token);
         setSupplier(s);
@@ -281,7 +299,12 @@ export default function SupplierDetailPage() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="text-center py-20 text-slate-400 text-sm">Loading…</div>
+        <div className="flex flex-col items-center justify-center p-20 space-y-4">
+          <div className="w-10 h-10 border-4 border-gray-100 border-t-[#00925d] rounded-full animate-spin"></div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            Fetching Partner Detail...
+          </p>
+        </div>
       </AppLayout>
     );
   }
@@ -342,7 +365,7 @@ export default function SupplierDetailPage() {
       <ConfirmModal
         isOpen={!!confirmReactivate}
         title="Reactivate Supplier"
-        message={`Reactivate "${supplier.legal_name}" to ${confirmReactivate}?`}
+        message={`Reactivate "${supplier.legal_name}"?`}
         confirmLabel="Reactivate"
         onConfirm={() => {
           if (confirmReactivate) void changeStatus(confirmReactivate);
@@ -350,30 +373,55 @@ export default function SupplierDetailPage() {
         onCancel={() => setConfirmReactivate(null)}
       />
 
-      <div className="max-w-4xl">
+      <div className="max-w-7xl mx-auto pt-4 sm:pt-6 pb-24">
+        {/* --- Breadcrumbs --- */}
+        <nav className="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] text-gray-400 mb-6">
+          <button
+            type="button"
+            onClick={() => navigate("/superadmin/suppliers")}
+            className="hover:text-[#004797] transition-colors cursor-pointer border-none bg-transparent outline-none"
+          >
+            Suppliers
+          </button>
+          <ChevronRight className="w-3 h-3 text-black" />
+          <span className="text-gray-900">Supplier Details</span>
+        </nav>
+
+        {/* --- Back Navigation --- */}
         <button
+          type="button"
           onClick={() => navigate("/superadmin/suppliers")}
-          className="text-sm text-slate-500 hover:text-slate-700 mb-4 flex items-center gap-1"
+          className="flex items-center gap-2 text-gray-500 hover:text-[#004797] cursor-pointer font-bold text-sm mb-6 transition-colors group border-none bg-transparent outline-none"
         >
-          ← Back to Suppliers
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Back to list
         </button>
 
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        {/* --- Header Section (Name + Status + Action Buttons) --- */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-slate-900">
+            <div className="flex flex-wrap items-center gap-3 mb-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
                 {supplier.legal_name}
               </h1>
-              <SupplierStatusBadge status={supplier.status} />
+              <span
+                className={`px-3 py-1 rounded-full text-[10px] font-bold border tracking-wider uppercase ${
+                  isApproved
+                    ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                    : isSuspended || isRejected
+                      ? "bg-rose-50 text-rose-600 border-rose-100"
+                      : "bg-amber-50 text-amber-600 border-amber-100"
+                }`}
+              >
+                {supplier.status.replace("_", " ")}
+              </span>
             </div>
-            <p className="text-sm text-slate-500 font-mono mt-0.5">
+            <p className="text-xs font-mono font-bold text-gray-400 uppercase tracking-widest">
               {supplier.supplier_code}
             </p>
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             {canReviewSupplier && (
               <>
                 <button
@@ -382,20 +430,23 @@ export default function SupplierDetailPage() {
                   title={
                     !kyc_complete ? "KYC incomplete — confirm to proceed" : ""
                   }
-                  className={`text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-50
-                    ${kyc_complete ? "bg-emerald-600 hover:bg-emerald-700" : "bg-amber-500 hover:bg-amber-600"}`}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 cursor-pointer flex-1 sm:flex-none disabled:opacity-50 border-none outline-none text-white
+                    ${kyc_complete ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20" : "bg-[#FF9900] hover:bg-[#E68A00] shadow-orange-500/20"}`}
                 >
-                  {approving
-                    ? "Approving…"
-                    : kyc_complete
-                      ? "Approve Supplier"
-                      : "Approve Supplier ⚠"}
+                  {approving ? (
+                    "Approving…"
+                  ) : kyc_complete ? (
+                    "Approve Supplier"
+                  ) : (
+                    <>
+                      Approve Supplier <AlertTriangle className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
                 <button
                   onClick={() => setShowRejectModal(true)}
                   disabled={updating}
-                  className="bg-white hover:bg-red-50 border border-red-300 text-red-700
-                             text-sm font-medium px-5 py-2 rounded-lg transition-colors"
+                  className="bg-white border border-rose-200 text-rose-500 hover:bg-rose-50 px-6 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer flex-1 sm:flex-none disabled:opacity-50 outline-none"
                 >
                   Reject
                 </button>
@@ -405,8 +456,7 @@ export default function SupplierDetailPage() {
               <button
                 onClick={() => setConfirmSuspend(true)}
                 disabled={updating}
-                className="bg-orange-50 text-orange-700 border border-orange-300 hover:bg-orange-100
-                           text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                className="bg-white border border-orange-200 text-orange-500 hover:bg-orange-50 px-6 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer flex-1 sm:flex-none disabled:opacity-50 outline-none"
               >
                 Suspend
               </button>
@@ -415,30 +465,28 @@ export default function SupplierDetailPage() {
               <button
                 onClick={() => setConfirmReactivate("APPROVED")}
                 disabled={updating}
-                className="bg-emerald-50 text-emerald-700 border border-emerald-300 hover:bg-emerald-100
-                           text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer disabled:opacity-50 border-none outline-none"
               >
-                Reactivate → Approved
+                <CheckCircle2 className="w-4 h-4" /> Reactivate Supplier
               </button>
             )}
             {isRejected && (
               <button
                 onClick={() => setConfirmReactivate("PENDING_KYC")}
                 disabled={updating}
-                className="bg-blue-50 text-blue-700 border border-blue-300 hover:bg-blue-100
-                           text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer disabled:opacity-50 border-none outline-none"
               >
-                Reactivate → Pending KYC
+                <CheckCircle2 className="w-4 h-4" /> Reactivate Supplier
               </button>
             )}
           </div>
         </div>
 
-        {/* Stepper — only for non-draft, non-suspended, non-rejected */}
+        {/* --- Onboarding Stepper --- */}
         {["PENDING_KYC", "PENDING_APPROVAL", "APPROVED"].includes(
           supplier.status,
         ) && (
-          <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
+          <div className="bg-white rounded-3xl border border-gray-100 p-10 shadow-sm mb-6 max-w-4xl mx-auto w-full">
             <Stepper
               steps={ONBOARDING_STEPS}
               current={stepIndex(supplier.status)}
@@ -446,192 +494,269 @@ export default function SupplierDetailPage() {
           </div>
         )}
 
-        {/* Status banners */}
-        {supplier.status === "SUSPENDED" && (
-          <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">
-            ⚠ This supplier is suspended. Use "Reactivate" to restore access.
-          </div>
-        )}
-        {supplier.status === "REJECTED" && (
-          <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium bg-red-50 text-red-700 border border-red-200">
-            ✕ This supplier was rejected.
-            {supplier.rejection_reason && (
-              <span className="ml-2 font-normal">
-                Reason: {supplier.rejection_reason}
+        {/* --- Status & Alerts Banners --- */}
+        <div className="space-y-4 mb-8">
+          {isSuspended && (
+            <div className="bg-[#FFFBEB] border border-orange-100 rounded-2xl p-4 flex items-center gap-4 text-[#92400E]">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+              </div>
+              <p className="text-sm font-bold leading-relaxed">
+                This supplier is suspended. Use "Reactivate" to restore access
+                to the marketplace and catalog.
+              </p>
+            </div>
+          )}
+          {isRejected && (
+            <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 flex items-center gap-4 text-rose-800">
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm shrink-0">
+                <X className="w-5 h-5 text-rose-500" />
+              </div>
+              <p className="text-sm font-bold leading-relaxed">
+                This supplier was rejected.
+                {supplier.rejection_reason && (
+                  <span className="font-normal block mt-1">
+                    Reason: {supplier.rejection_reason}
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+          {kycData && (
+            <div className="bg-[#FFFBEB] border border-orange-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[#92400E]">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <p className="text-sm font-bold uppercase tracking-wide">
+                  {kyc_complete
+                    ? "✓ All required KYC documents submitted"
+                    : "KYC incomplete"}
+                </p>
+              </div>
+              <span className="text-[11px] font-bold opacity-60">
+                {requiredDone}/{REQUIRED_TYPES.length} required documents
+                approved
               </span>
+            </div>
+          )}
+        </div>
+
+        {/* --- Detailed Data Cards --- */}
+        <div className="space-y-8">
+          {/* Business Details Card */}
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 sm:px-8 sm:py-6 border-b border-gray-50 bg-gray-50/30 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+                Business Details
+              </h2>
+            </div>
+            <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <DataField label="Legal Name" value={supplier.legal_name} />
+              <DataField label="Trade Name" value={supplier.trade_name} />
+              <DataField label="Email Address" value={supplier.email} />
+              <DataField label="Mobile Number" value={supplier.mobile_number} />
+              <DataField
+                label="Street Address"
+                value={supplier.address_line1}
+              />
+              <DataField label="City" value={supplier.city} />
+              <DataField label="Province" value={supplier.province} />
+              <DataField label="Postal Code" value={supplier.postal_code} />
+              <DataField label="Country" value={supplier.country} />
+            </div>
+          </div>
+
+          {/* KYC Documents Card */}
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="px-8 py-6 border-b border-gray-50 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <h2 className="text-base font-bold text-gray-800">
+                  KYC Documents
+                </h2>
+              </div>
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                {kyc_documents.length} files
+              </span>
+            </div>
+
+            {kyc_documents.length === 0 ? (
+              <div className="p-20 flex flex-col items-center justify-center text-center">
+                <FileText className="w-12 h-12 text-gray-100 mb-4" />
+                <p className="text-sm font-bold text-gray-400">
+                  No documents uploaded yet.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50/50 border-b border-gray-50">
+                      <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Document Type
+                      </th>
+                      <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        File Name
+                      </th>
+                      <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Status
+                      </th>
+                      <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden md:table-cell">
+                        Uploaded At
+                      </th>
+                      <th className="px-8 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Remarks
+                      </th>
+                      <th className="px-8 py-4"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {kyc_documents.map((doc) => (
+                      <tr
+                        key={doc.id}
+                        className="hover:bg-gray-50/20 transition-colors"
+                      >
+                        <td className="px-8 py-4 font-bold text-sm text-[#002244]">
+                          {DOC_LABELS[doc.doc_type] ?? doc.doc_type}
+                        </td>
+                        <td className="px-8 py-4">
+                          <button
+                            onClick={() =>
+                              setPreview({
+                                url: doc.file_url,
+                                filename: doc.original_filename,
+                              })
+                            }
+                            className="text-emerald-600 hover:underline font-bold text-xs truncate max-w-48 text-left outline-none bg-transparent border-none cursor-pointer"
+                          >
+                            {doc.original_filename}
+                          </button>
+                        </td>
+                        <td className="px-8 py-4">
+                          <KycDocStatusBadge status={doc.status} />
+                        </td>
+                        <td className="px-8 py-4 font-bold text-xs text-gray-400 hidden md:table-cell">
+                          {fmt(doc.uploaded_at)}
+                        </td>
+                        <td className="px-8 py-4 text-xs text-gray-400 italic max-w-48 truncate">
+                          {doc.remarks ?? "—"}
+                        </td>
+                        <td className="px-8 py-4 text-right">
+                          {doc.status === "SUBMITTED" ? (
+                            <div className="flex gap-2 justify-end">
+                              <button
+                                onClick={() => void handleInlineApprove(doc.id)}
+                                disabled={inlineApprovingId === doc.id}
+                                className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-[#eaf7f2] text-[#00925d] hover:bg-[#00925d] hover:text-white transition-all cursor-pointer outline-none border-none"
+                              >
+                                {inlineApprovingId === doc.id
+                                  ? "..."
+                                  : "Approve"}
+                              </button>
+                              <button
+                                onClick={() => setInlineRejectDoc(doc)}
+                                disabled={inlineApprovingId === doc.id}
+                                className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all cursor-pointer outline-none border-none"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                              {doc.status === "APPROVED"
+                                ? "✓ Approved"
+                                : "✗ Rejected"}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
-        )}
 
-        {/* KYC completeness bar */}
-        {kycData && (
-          <div
-            className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium ${
-              kyc_complete
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                : "bg-amber-50 text-amber-700 border border-amber-200"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span>
-                {kyc_complete
-                  ? "✓ All required KYC documents submitted"
-                  : "⚠ KYC incomplete"}
-              </span>
-              <span className="font-mono text-xs">
-                {requiredDone}/{REQUIRED_TYPES.length} required
-              </span>
+          {/* Verification Status & Account Timestamps Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Verification Status */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-8 py-6 border-b border-gray-50 bg-gray-50/30 flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-blue-500 shrink-0" />
+                <h2 className="text-base font-bold text-gray-800">
+                  Verification Status
+                </h2>
+              </div>
+              <div className="p-8 grid grid-cols-2 gap-8">
+                <DataField
+                  label="Email Verified"
+                  value={
+                    supplier.is_email_verified ? (
+                      <>✓ Yes</>
+                    ) : (
+                      <>
+                        <X className="w-3.5 h-3.5 text-rose-500 shrink-0" /> No
+                      </>
+                    )
+                  }
+                  isRed={!supplier.is_email_verified}
+                />
+                <DataField
+                  label="Mobile Verified"
+                  value={
+                    supplier.is_mobile_verified ? (
+                      <>✓ Yes</>
+                    ) : (
+                      <>
+                        <X className="w-3.5 h-3.5 text-rose-500 shrink-0" /> No
+                      </>
+                    )
+                  }
+                  isRed={!supplier.is_mobile_verified}
+                />
+                <DataField
+                  label="Approved At"
+                  value={fmt(supplier.approved_at)}
+                />
+                <DataField
+                  label="Rejected At"
+                  value={fmt(supplier.rejected_at)}
+                />
+                {supplier.rejection_reason && (
+                  <div className="col-span-2">
+                    <DataField
+                      label="Rejection Reason"
+                      value={supplier.rejection_reason}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="w-full bg-white/60 rounded-full h-1.5">
-              <div
-                className={`h-1.5 rounded-full transition-all ${kyc_complete ? "bg-emerald-500" : "bg-amber-400"}`}
-                style={{
-                  width: `${(requiredDone / REQUIRED_TYPES.length) * 100}%`,
-                }}
-              />
+
+            {/* Account Timestamps */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-8 py-6 border-b border-gray-50 bg-gray-50/30 flex items-center gap-3">
+                <Clock className="w-5 h-5 text-purple-500 shrink-0" />
+                <h2 className="text-base font-bold text-gray-800">
+                  Account Timestamps
+                </h2>
+              </div>
+              <div className="p-8 grid grid-cols-1 gap-8">
+                <DataField
+                  label="Record Created"
+                  value={fmt(supplier.created_at)}
+                />
+                <DataField
+                  label="Last Updated"
+                  value={fmt(supplier.updated_at)}
+                />
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Supplier info */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-          <h2 className="font-semibold text-slate-800 mb-4">
-            Business Information
-          </h2>
-          <InfoRow label="Legal Name" value={supplier.legal_name} />
-          <InfoRow label="Trade Name" value={supplier.trade_name} />
-          <InfoRow label="Email" value={supplier.email} />
-          <InfoRow label="Mobile" value={supplier.mobile_number} />
-          <InfoRow label="Address" value={supplier.address_line1} />
-          <InfoRow label="City" value={supplier.city} />
-          <InfoRow label="Province" value={supplier.province} />
-          <InfoRow label="Postal Code" value={supplier.postal_code} />
-          <InfoRow label="Country" value={supplier.country} />
-        </div>
-
-        {/* KYC documents */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-4">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-800">KYC Documents</h2>
-            <span className="text-xs text-slate-400">
-              {kyc_documents.length} file{kyc_documents.length !== 1 ? "s" : ""}
-            </span>
-          </div>
-          {kyc_documents.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 text-sm">
-              No documents uploaded yet.
-            </div>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-left">
-                  <th className="px-4 py-3 font-medium text-slate-600">
-                    Document Type
-                  </th>
-                  <th className="px-4 py-3 font-medium text-slate-600">File</th>
-                  <th className="px-4 py-3 font-medium text-slate-600">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 font-medium text-slate-600 hidden md:table-cell">
-                    Uploaded
-                  </th>
-                  <th className="px-4 py-3 font-medium text-slate-600">
-                    Remarks
-                  </th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {kyc_documents.map((doc) => (
-                  <tr
-                    key={doc.id}
-                    className="border-b border-slate-100 last:border-0"
-                  >
-                    <td className="px-4 py-3 font-medium text-slate-900">
-                      {DOC_LABELS[doc.doc_type] ?? doc.doc_type}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() =>
-                          setPreview({
-                            url: doc.file_url,
-                            filename: doc.original_filename,
-                          })
-                        }
-                        className="text-emerald-600 hover:underline truncate max-w-[10rem] inline-block text-left"
-                      >
-                        {doc.original_filename}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3">
-                      <KycDocStatusBadge status={doc.status} />
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 hidden md:table-cell">
-                      {fmt(doc.uploaded_at)}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs max-w-[12rem]">
-                      {doc.remarks ?? "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {doc.status === "SUBMITTED" ? (
-                        <div className="flex gap-1.5 justify-end">
-                          <button
-                            onClick={() => void handleInlineApprove(doc.id)}
-                            disabled={inlineApprovingId === doc.id}
-                            className="text-xs font-medium px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-700
-                                       hover:bg-emerald-200 disabled:opacity-50 whitespace-nowrap transition-colors"
-                          >
-                            {inlineApprovingId === doc.id ? "…" : "✓ Approve"}
-                          </button>
-                          <button
-                            onClick={() => setInlineRejectDoc(doc)}
-                            disabled={inlineApprovingId === doc.id}
-                            className="text-xs font-medium px-2.5 py-1 rounded-md bg-red-100 text-red-700
-                                       hover:bg-red-200 disabled:opacity-50 whitespace-nowrap transition-colors"
-                          >
-                            ✗ Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-slate-400">
-                          {doc.status === "APPROVED"
-                            ? "✓ Reviewed"
-                            : "✗ Reviewed"}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* Verification + timestamps */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-          <h2 className="font-semibold text-slate-800 mb-4">Verification</h2>
-          <InfoRow
-            label="Email Verified"
-            value={supplier.is_email_verified ? "✓ Yes" : "✕ No"}
-          />
-          <InfoRow
-            label="Mobile Verified"
-            value={supplier.is_mobile_verified ? "✓ Yes" : "✕ No"}
-          />
-          <InfoRow label="Approved At" value={fmt(supplier.approved_at)} />
-          <InfoRow label="Rejected At" value={fmt(supplier.rejected_at)} />
-          {supplier.rejection_reason && (
-            <InfoRow
-              label="Rejection Reason"
-              value={supplier.rejection_reason}
-            />
-          )}
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h2 className="font-semibold text-slate-800 mb-4">Timestamps</h2>
-          <InfoRow label="Created" value={fmt(supplier.created_at)} />
-          <InfoRow label="Updated" value={fmt(supplier.updated_at)} />
         </div>
       </div>
     </AppLayout>

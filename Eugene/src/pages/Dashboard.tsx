@@ -435,7 +435,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* --- ADDED SECTION: ORDERS VS STOCK AT A GLANCE --- */}
-      <div className="bg-white rounded-[24px] border border-gray-100 p-8 shadow-[0_2px_12px_rgba(0,0,0,0.02)] mb-12">
+      <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-[0_2px_12px_rgba(0,0,0,0.02)] mb-12">
         <div className="mb-8">
           <h3 className="text-lg font-bold text-[#004797]">Orders vs Stock at a Glance</h3>
           <p className="text-[13px] text-gray-400 font-medium mt-0.5">

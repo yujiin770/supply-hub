@@ -1,8 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useQueries } from "@tanstack/react-query";
-import SupplierLayout from "../../layouts/supplier_layout";
+import SupplierLayout, { useOrdersFilter } from "../../layouts/supplier_layout";
 import {
-  orderApi,
   useIncomingOrders,
   useUpdateOrderStatus,
   useEditOrder,
@@ -17,6 +15,34 @@ import {
   useSupplierPackages,
   type MarketplacePackage,
 } from "../../features/api_clients/marketplace_api";
+import {
+  ShoppingBag,
+  Search,
+  Filter,
+  Hourglass,
+  Bell,
+  CreditCard,
+  CheckSquare,
+  Truck,
+  Package,
+  Ban,
+  AlertCircle,
+  X,
+  Plus,
+} from "lucide-react";
+
+// Maps shared Title Case sidebar context to UPPERCASE backend enums
+const CONTEXT_TO_BACKEND: Record<string, OrderStatus | "ALL"> = {
+  All: "ALL",
+  Pending: "PENDING",
+  "Awaiting Confirmation": "AWAITING_CONFIRMATION",
+  "Awaiting Conf.": "AWAITING_CONFIRMATION",
+  "Awaiting Payment": "AWAITING_PAYMENT",
+  Confirmed: "CONFIRMED",
+  Shipped: "SHIPPED",
+  Delivered: "DELIVERED",
+  Cancelled: "CANCELLED",
+};
 
 function StatusBadge({ status }: { status: OrderStatus }) {
   const { bg, text } = ORDER_STATUS_COLORS[status] ?? {
@@ -41,37 +67,6 @@ function formatDate(iso: string) {
     minute: "2-digit",
   });
 }
-
-const STATUS_TABS: { label: string; value: OrderStatus | "ALL" }[] = [
-  { label: "All", value: "ALL" },
-  { label: "Pending", value: "PENDING" },
-  { label: "Awaiting Conf.", value: "AWAITING_CONFIRMATION" },
-  { label: "Awaiting Payment", value: "AWAITING_PAYMENT" },
-  { label: "Confirmed", value: "CONFIRMED" },
-  { label: "Shipped", value: "SHIPPED" },
-  { label: "Delivered", value: "DELIVERED" },
-  { label: "Cancelled", value: "CANCELLED" },
-];
-
-const STATUS_ONLY: OrderStatus[] = [
-  "PENDING",
-  "AWAITING_CONFIRMATION",
-  "AWAITING_PAYMENT",
-  "CONFIRMED",
-  "SHIPPED",
-  "DELIVERED",
-  "CANCELLED",
-];
-
-const STATUS_DOT: Record<OrderStatus, string> = {
-  PENDING: "bg-amber-400",
-  AWAITING_CONFIRMATION: "bg-blue-500",
-  AWAITING_PAYMENT: "bg-orange-500",
-  CONFIRMED: "bg-indigo-500",
-  SHIPPED: "bg-purple-500",
-  DELIVERED: "bg-green-500",
-  CANCELLED: "bg-slate-400",
-};
 
 type AllowedTransition = {
   status: OrderStatus;
@@ -217,7 +212,7 @@ function SupplierPackagePicker({
     "flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-100 cursor-pointer";
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col bg-white">
+    <div className="fixed inset-0 z-60 flex flex-col bg-white animate-in fade-in duration-200">
       {/* Header */}
       <header className="h-14 border-b border-slate-200 flex items-center gap-3 px-4 pr-14 shrink-0 relative">
         <span className="text-sm font-bold text-slate-800 shrink-0">
@@ -225,19 +220,7 @@ function SupplierPackagePicker({
         </span>
         <div className="flex-1 relative max-w-xl">
           <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+            <Search className="w-4 h-4" />
           </span>
           <input
             autoFocus
@@ -245,7 +228,7 @@ function SupplierPackagePicker({
             value={inputValue}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search brand name…"
-            className="w-full pl-9 pr-8 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 focus:bg-white placeholder-slate-400 transition-colors"
+            className="w-full pl-9 pr-8 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#004797]/30 bg-slate-50 focus:bg-white placeholder-slate-400 transition-colors"
           />
           {inputValue && (
             <button
@@ -254,42 +237,18 @@ function SupplierPackagePicker({
                 setDebouncedQ("");
                 setOffset(0);
               }}
-              className="absolute inset-y-0 right-2.5 flex items-center text-slate-400 hover:text-slate-600"
+              className="absolute inset-y-0 right-2.5 flex items-center text-slate-400 hover:text-slate-600 animate-fade-in bg-transparent border-none outline-none cursor-pointer"
             >
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
         <button
           onClick={onClose}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors border-none bg-transparent cursor-pointer"
           aria-label="Close"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <X className="w-4 h-4" />
         </button>
       </header>
 
@@ -303,7 +262,7 @@ function SupplierPackagePicker({
             {activeFilterCount > 0 && (
               <button
                 onClick={() => setFilters(EMPTY_PICKER_FILTERS)}
-                className="text-xs text-emerald-600 hover:text-emerald-800 font-medium"
+                className="text-xs text-emerald-600 hover:text-emerald-800 font-medium bg-transparent border-none cursor-pointer"
               >
                 Clear {activeFilterCount}
               </button>
@@ -360,7 +319,7 @@ function SupplierPackagePicker({
         {/* Results */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Sub-header */}
-          <div className="px-4 py-2 border-b border-slate-100 flex items-center gap-2 shrink-0 flex-wrap bg-white min-h-[40px]">
+          <div className="px-4 py-2 border-b border-slate-100 flex items-center gap-2 shrink-0 flex-wrap bg-white min-h-10">
             <span className="text-xs text-slate-500">
               <span className="font-semibold text-slate-800">
                 {visible.length}
@@ -392,7 +351,7 @@ function SupplierPackagePicker({
           </div>
 
           <div className="flex-1 overflow-auto">
-            <table className="w-full text-sm min-w-[600px]">
+            <table className="w-full text-sm min-w-150 border-collapse">
               <thead className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
                 <tr>
                   <th className={thCls}>Brand Name</th>
@@ -435,7 +394,7 @@ function SupplierPackagePicker({
                         key={pkg.pack_id}
                         className={`transition-colors ${isAdded ? "bg-emerald-50/50" : "hover:bg-slate-50"}`}
                       >
-                        <td className="px-3 py-2.5 max-w-[200px]">
+                        <td className="px-3 py-2.5 max-w-50">
                           <p className="text-xs font-semibold text-slate-900 truncate">
                             {pkg.brand_name ?? pkg.pack_id.slice(0, 8) + "…"}
                           </p>
@@ -490,7 +449,7 @@ function SupplierPackagePicker({
                           ) : (
                             <button
                               onClick={() => onPick(pkg, q)}
-                              className="inline-flex items-center gap-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full px-3 py-1 transition-colors whitespace-nowrap"
+                              className="inline-flex items-center gap-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full px-3 py-1 transition-colors whitespace-nowrap border-none cursor-pointer outline-none"
                             >
                               + Add
                             </button>
@@ -643,7 +602,7 @@ function EditOrderModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex flex-col bg-slate-50">
+      <div className="fixed inset-0 z-50 flex flex-col bg-slate-50 animate-in fade-in duration-200">
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <header className="h-14 bg-white border-b border-slate-200 flex items-center gap-3 px-6 pr-14 shrink-0 relative">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -659,22 +618,10 @@ function EditOrderModal({
           </div>
           <button
             onClick={onClose}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors border-none bg-transparent cursor-pointer"
             aria-label="Close"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="w-4 h-4" />
           </button>
         </header>
 
@@ -693,21 +640,9 @@ function EditOrderModal({
                 </p>
                 <button
                   onClick={() => setShowCatalog(true)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-3 py-1.5 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#004797] hover:bg-blue-800 text-white rounded-lg px-3 py-1.5 transition-colors border-none cursor-pointer outline-none"
                 >
-                  <svg
-                    className="w-3.5 h-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
+                  <Plus className="w-3.5 h-3.5" />
                   Browse Catalog
                 </button>
               </div>
@@ -715,19 +650,7 @@ function EditOrderModal({
               <div className="flex-1 overflow-y-auto">
                 {items.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full py-10 gap-2 text-slate-400">
-                    <svg
-                      className="w-8 h-8"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"
-                      />
-                    </svg>
+                    <ShoppingBag className="w-8 h-8 text-slate-300" />
                     <p className="text-sm font-medium text-slate-500">
                       No items yet
                     </p>
@@ -759,7 +682,7 @@ function EditOrderModal({
                               onClick={() =>
                                 updateQty(i, Math.max(1, item.quantity - 1))
                               }
-                              className="px-2 py-1 text-slate-500 hover:bg-slate-100 text-sm font-bold transition-colors"
+                              className="px-2 py-1 text-slate-500 hover:bg-slate-100 text-sm font-bold transition-colors border-none bg-transparent cursor-pointer animate-none"
                             >
                               −
                             </button>
@@ -775,29 +698,17 @@ function EditOrderModal({
                             />
                             <button
                               onClick={() => updateQty(i, item.quantity + 1)}
-                              className="px-2 py-1 text-slate-500 hover:bg-slate-100 text-sm font-bold transition-colors"
+                              className="px-2 py-1 text-slate-500 hover:bg-slate-100 text-sm font-bold transition-colors border-none bg-transparent cursor-pointer animate-none"
                             >
                               +
                             </button>
                           </div>
                           <button
                             onClick={() => removeItem(i)}
-                            className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border-none bg-transparent cursor-pointer"
                             title="Remove"
                           >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -833,7 +744,7 @@ function EditOrderModal({
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
                 placeholder="Explain what was changed and why (e.g. item out of stock, substituted product)…"
-                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none placeholder-slate-400 transition-colors"
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#004797] resize-none placeholder-slate-400 transition-colors"
               />
             </div>
 
@@ -841,14 +752,14 @@ function EditOrderModal({
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2.5 text-sm font-medium bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-medium bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors border-none cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={editOrder.isPending || !canSave}
-                className="flex-1 px-4 py-2.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold bg-[#004797] hover:bg-blue-800 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed border-none cursor-pointer outline-none"
               >
                 {editOrder.isPending ? "Saving…" : "Save Changes"}
               </button>
@@ -1000,14 +911,14 @@ function DeclinePaymentModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="text-sm font-medium rounded-lg px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+            className="text-sm font-medium rounded-lg px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border-none cursor-pointer"
           >
             Cancel
           </button>
           <button
             disabled={!remarks.trim() || declinePayment.isPending}
             onClick={handleSubmit}
-            className="text-sm font-medium rounded-lg px-4 py-2 bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50"
+            className="text-sm font-medium rounded-lg px-4 py-2 bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 border-none cursor-pointer"
           >
             {declinePayment.isPending ? "Declining…" : "Decline Payment"}
           </button>
@@ -1064,14 +975,14 @@ function CancelOrderModal({
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}
-            className="text-sm font-medium rounded-lg px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+            className="text-sm font-medium rounded-lg px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors border-none cursor-pointer"
           >
             Back
           </button>
           <button
             disabled={!remarks.trim() || update.isPending}
             onClick={handleSubmit}
-            className="text-sm font-medium rounded-lg px-4 py-2 bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50"
+            className="text-sm font-medium rounded-lg px-4 py-2 bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 border-none cursor-pointer"
           >
             {update.isPending ? "Cancelling…" : "Confirm Cancellation"}
           </button>
@@ -1189,7 +1100,7 @@ function ImageZoomModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
@@ -1198,7 +1109,7 @@ function ImageZoomModal({
             e.stopPropagation();
             zoom(-0.25);
           }}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 text-lg font-bold"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 text-lg font-bold border-none cursor-pointer"
         >
           −
         </button>
@@ -1207,7 +1118,7 @@ function ImageZoomModal({
             e.stopPropagation();
             zoom(0.25);
           }}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 text-lg font-bold"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 text-lg font-bold border-none cursor-pointer"
         >
           +
         </button>
@@ -1216,13 +1127,13 @@ function ImageZoomModal({
             e.stopPropagation();
             resetView();
           }}
-          className="px-3 h-8 rounded-full bg-white/20 text-white hover:bg-white/30 text-xs font-medium"
+          className="px-3 h-8 rounded-full bg-white/20 text-white hover:bg-white/30 text-xs font-medium border-none cursor-pointer"
         >
           Reset
         </button>
         <button
           onClick={onClose}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 text-lg"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 text-lg border-none cursor-pointer animate-fade-in"
         >
           ✕
         </button>
@@ -1286,40 +1197,40 @@ function OrderRow({
   return (
     <>
       <tr
-        className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
+        className="border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer transition-colors"
         onClick={onToggle}
       >
-        <td className="px-4 py-3 font-mono text-xs text-slate-700">
+        <td className="px-6 py-4 font-mono text-xs text-slate-700">
           {order.order_number}
         </td>
-        <td className="px-4 py-3">
+        <td className="px-6 py-4">
           <p
-            className="text-xs font-mono text-slate-700 truncate max-w-[160px]"
+            className="text-xs font-mono text-slate-700 truncate max-w-40"
             title={order.buyer_id}
           >
             {order.buyer_id}
           </p>
           {order.client_reference_id && (
             <p
-              className="text-xs text-slate-400 truncate max-w-[160px]"
+              className="text-xs text-slate-400 truncate max-w-40"
               title={order.client_reference_id}
             >
               ref: {order.client_reference_id}
             </p>
           )}
         </td>
-        <td className="px-4 py-3">
+        <td className="px-6 py-4">
           <StatusBadge status={order.status} />
         </td>
-        <td className="px-4 py-3 text-xs text-slate-500">
+        <td className="px-6 py-4 text-xs text-slate-500">
           {formatDate(order.created_at)}
         </td>
-        <td className="px-4 py-3 text-sm font-semibold text-right text-slate-900">
+        <td className="px-6 py-4 text-sm font-semibold text-right text-slate-900">
           {order.total
             ? `₱ ${parseFloat(order.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
             : "—"}
         </td>
-        <td className="px-4 py-3 text-right">
+        <td className="px-6 py-4 text-right">
           <span className="text-xs text-slate-400">
             {isExpanded ? "▲" : "▼"}
           </span>
@@ -1480,7 +1391,10 @@ function OrderRow({
                         src={order.payment_reference}
                         alt="Payment receipt"
                         className="max-h-52 rounded-lg border border-emerald-200 object-contain mb-2 cursor-zoom-in hover:opacity-90 transition-opacity"
-                        onClick={() => setZoomedImage(order.payment_reference!)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setZoomedImage(order.payment_reference!);
+                        }}
                       />
                       <p className="text-xs text-emerald-600">
                         Confirm or decline the payment below.
@@ -1521,7 +1435,10 @@ function OrderRow({
                       src={order.payment_reference}
                       alt="Payment receipt"
                       className="max-h-52 rounded-lg border border-green-200 object-contain cursor-zoom-in hover:opacity-90 transition-opacity"
-                      onClick={() => setZoomedImage(order.payment_reference!)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setZoomedImage(order.payment_reference!);
+                      }}
                     />
                   </div>
                 )}
@@ -1540,7 +1457,7 @@ function OrderRow({
                         update.mutate({ orderId: order.id, status: t.status });
                       }
                     }}
-                    className={`text-sm font-medium rounded-lg px-4 py-2 transition-colors disabled:opacity-50 ${VARIANT_CLASSES[t.variant]}`}
+                    className={`text-sm font-medium rounded-lg px-4 py-2 transition-colors disabled:opacity-50 border-none cursor-pointer outline-none ${VARIANT_CLASSES[t.variant]}`}
                   >
                     {t.label}
                   </button>
@@ -1551,7 +1468,7 @@ function OrderRow({
                       e.stopPropagation();
                       setShowEditModal(true);
                     }}
-                    className="text-sm font-medium rounded-lg px-4 py-2 transition-colors bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200"
+                    className="text-sm font-medium rounded-lg px-4 py-2 transition-colors bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 cursor-pointer"
                   >
                     ✏️ Edit Order
                   </button>
@@ -1563,7 +1480,7 @@ function OrderRow({
                         e.stopPropagation();
                         setShowDeclineModal(true);
                       }}
-                      className="text-sm font-medium rounded-lg px-4 py-2 transition-colors bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
+                      className="text-sm font-medium rounded-lg px-4 py-2 transition-colors bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 cursor-pointer"
                     >
                       ✕ Decline Payment
                     </button>
@@ -1599,12 +1516,20 @@ function OrderRow({
   );
 }
 
-const PAGE_SIZE = 20;
+// ── Inner Page Content Component (descends correctly from standard Context Provider) ──────────────────
 
-export default function IncomingOrdersPage() {
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
+function IncomingOrdersPageContent() {
+  const PAGE_SIZE = 20;
+  const { orderStatus } = useOrdersFilter();
+  const statusFilter = CONTEXT_TO_BACKEND[orderStatus] || "ALL";
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Automatically reset page and collapse active expanded rows on tab change
+  useEffect(() => {
+    setPage(1);
+    setExpandedId(null);
+  }, [statusFilter]);
 
   const params = {
     status: statusFilter !== "ALL" ? statusFilter : undefined,
@@ -1627,156 +1552,146 @@ export default function IncomingOrdersPage() {
       ? orders.filter((o) => !o.payment_reference)
       : [];
 
-  function handleTabChange(tab: OrderStatus | "ALL") {
-    setStatusFilter(tab);
-    setPage(1);
-    setExpandedId(null);
-  }
+  // Dynamic visual configurations matching the layout theme
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "Pending":
+        return { icon: Hourglass, color: "text-amber-500", bg: "bg-amber-50", label: "Pending Verification" };
+      case "Awaiting Confirmation":
+        return { icon: Bell, color: "text-orange-500", bg: "bg-orange-50", label: "Awaiting Your Confirmation" };
+      case "Awaiting Payment":
+        return { icon: CreditCard, color: "text-blue-500", bg: "bg-blue-50", label: "Awaiting Buyer Payment" };
+      case "Confirmed":
+        return { icon: CheckSquare, color: "text-[#21BBD7]", bg: "bg-cyan-50", label: "Confirmed Orders" };
+      case "Shipped":
+        return { icon: Truck, color: "text-purple-500", bg: "bg-purple-50", label: "Orders in Transit" };
+      case "Delivered":
+        return { icon: Package, color: "text-emerald-500", bg: "bg-emerald-50", label: "Completed Deliveries" };
+      case "Cancelled":
+        return { icon: Ban, color: "text-gray-400", bg: "bg-gray-50", label: "Cancelled Orders" };
+      default:
+        return { icon: ShoppingBag, color: "text-[#004797]", bg: "bg-blue-50", label: "All Orders" };
+    }
+  };
 
-  // ── Per-status counts ─────────────────────────────────────────────────────
-  const countQueries = useQueries({
-    queries: STATUS_ONLY.map((s) => ({
-      queryKey: ["supplier-orders-count", s],
-      queryFn: () =>
-        orderApi.listIncomingOrders({ status: s, limit: 1, offset: 0 }),
-      staleTime: 30_000,
-    })),
-  });
-
-  const statusCounts = Object.fromEntries(
-    STATUS_ONLY.map((s, i) => [s, countQueries[i].data?.total ?? 0]),
-  ) as Record<OrderStatus, number>;
-
-  const totalAll = STATUS_ONLY.reduce(
-    (sum, s) => sum + (statusCounts[s] ?? 0),
-    0,
-  );
+  const configKey = orderStatus === "Awaiting Conf." ? "Awaiting Confirmation" : orderStatus;
+  const config = getStatusConfig(configKey);
+  const StatusIcon = config.icon;
 
   return (
-    <SupplierLayout>
-      <div className="flex -m-6 h-[calc(100%+3rem)]">
-        {/* Status sidebar */}
-        <aside className="w-52 shrink-0 bg-white border-r border-slate-200 overflow-y-auto flex flex-col">
-          <div className="px-4 py-3 border-b border-slate-100">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Incoming Orders
-            </p>
+    <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-500 pb-20 max-w-7xl mx-auto py-2 gap-8">
+      
+      {/* --- Page Header --- */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <div className={`p-1.5 rounded-lg ${config.bg} ${config.color}`}>
+            <StatusIcon className="w-4 h-4" />
           </div>
-          <nav className="flex-1 py-2">
-            {STATUS_TABS.map((tab) => {
-              const isActive = statusFilter === tab.value;
-              const count =
-                tab.value === "ALL"
-                  ? totalAll
-                  : (statusCounts[tab.value as OrderStatus] ?? 0);
-              const needsAction =
-                (tab.value === "AWAITING_PAYMENT" &&
-                  (statusCounts["AWAITING_PAYMENT"] ?? 0) > 0) ||
-                (tab.value === "PENDING" && (statusCounts["PENDING"] ?? 0) > 0);
-              return (
-                <button
-                  key={tab.value}
-                  onClick={() => handleTabChange(tab.value)}
-                  className={`w-full flex items-center justify-between px-4 py-2 text-sm text-left border-r-2 transition-colors ${
-                    isActive
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-500 font-semibold"
-                      : "text-slate-600 border-transparent hover:bg-slate-50 hover:text-slate-800 font-medium"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    {tab.value !== "ALL" && (
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                          isActive
-                            ? STATUS_DOT[tab.value as OrderStatus]
-                            : "bg-slate-300"
-                        }`}
-                      />
-                    )}
-                    <span className="text-xs">{tab.label}</span>
-                  </span>
-                  {count > 0 && (
-                    <span
-                      className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 leading-none ${
-                        needsAction && !isActive
-                          ? "bg-orange-500 text-white"
-                          : isActive
-                            ? "bg-emerald-600 text-white"
-                            : "bg-slate-200 text-slate-600"
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
-        {/* Main content */}
-        <div className="flex-1 overflow-auto p-6 space-y-5">
-          {/* Page header */}
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">
-              Incoming Orders
-            </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
-              {statusFilter === "ALL"
-                ? "All orders from buyers"
-                : ORDER_STATUS_LABELS[statusFilter as OrderStatus]}
-            </p>
-          </div>
+          <span className={`text-[11px] font-extrabold uppercase tracking-[0.2em] ${config.color}`}>
+            Status: {orderStatus}
+          </span>
+        </div>
+        <h1 className="text-4xl font-semibold text-gray-900 tracking-tight">
+          Incoming Orders
+        </h1>
+        <p className="text-gray-500 font-medium mt-1">
+          Review and process your wholesale distribution requests for <span className="font-bold text-gray-800">{config.label}</span>.
+        </p>
+      </div>
 
-          {/* Table */}
-          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
-                <svg
-                  className="w-8 h-8 animate-spin text-emerald-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  />
-                </svg>
-                <span className="text-sm">Loading orders…</span>
+      <main className="w-full space-y-6">
+        
+        {/* Search & Action Bar */}
+        <div className="bg-white rounded-[28px] border border-gray-100 p-3 shadow-sm flex flex-col md:flex-row gap-3 items-center">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder={`Search in ${orderStatus} orders...`}
+              className="w-full pl-12 pr-4 py-3.5 bg-gray-50/50 border-transparent rounded-[18px] text-sm font-medium focus:bg-white focus:ring-4 focus:ring-blue-500/5 outline-none transition-all"
+              disabled
+            />
+          </div>
+          <button className="flex items-center gap-2 px-8 py-3.5 bg-white border border-gray-100 rounded-[18px] text-xs font-bold text-gray-400 cursor-not-allowed border-none outline-none">
+            <Filter className="w-4 h-4" />
+            Detailed Filters
+          </button>
+        </div>
+
+        {/* Table list container */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white rounded-3xl border border-gray-100 shadow-sm min-h-100">
+            <svg
+              className="w-8 h-8 animate-spin text-emerald-500"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              />
+            </svg>
+            <span className="text-sm font-medium text-slate-400 uppercase tracking-widest">Loading orders…</span>
+          </div>
+        ) : orders.length === 0 ? (
+          /* --- Empty State Card --- */
+          <div className="bg-white rounded-4xl border border-gray-100 shadow-sm overflow-hidden min-h-137.5 flex flex-col items-center justify-center p-12 text-center relative">
+            
+            {/* Decorative background element */}
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-3xl opacity-20 ${config.bg}`} />
+
+            <div className="relative mb-8">
+              <div className={`w-28 h-28 ${config.bg} rounded-[40px] flex items-center justify-center border border-white shadow-xl transition-all duration-700`}>
+                <StatusIcon className={`w-12 h-12 ${config.color} transition-all duration-700`} />
               </div>
-            ) : orders.length === 0 ? (
-              <div className="p-10 text-center text-slate-400">
-                <p className="text-3xl mb-2">📋</p>
-                <p className="font-medium">No orders yet</p>
-                <p className="text-sm mt-1">
-                  Orders will appear here once buyers place them.
-                </p>
+              <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-2xl shadow-lg border border-gray-50 flex items-center justify-center">
+                <div className={`w-2 h-2 rounded-full animate-pulse ${config.color.replace('text-', 'bg-')}`} />
               </div>
-            ) : (
-              <table className="w-full">
-                <thead className="bg-slate-50 border-b border-slate-200">
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mb-3 relative">
+              No {orderStatus === "All" ? "" : orderStatus.toLowerCase()} orders yet
+            </h2>
+            <p className="text-gray-400 font-medium max-w-sm leading-relaxed relative">
+              When a pharmacy buyer places an order that matches this status, 
+              it will appear here in real-time.
+            </p>
+
+            <div className={`mt-12 flex items-center gap-3 py-2.5 px-5 ${config.bg} rounded-full border border-white shadow-sm relative`}>
+              <AlertCircle className={`w-4 h-4 ${config.color}`} />
+              <span className={`text-[10px] font-bold uppercase tracking-widest ${config.color}`}>
+                System Monitoring Active
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-175">
+                <thead className="bg-slate-50/50 border-b border-gray-55 shadow-xs">
                   <tr>
-                    <th className="text-left px-4 py-3 text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       Order #
                     </th>
-                    <th className="text-left px-4 py-3 text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       Buyer
                     </th>
-                    <th className="text-left px-4 py-3 text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       Status
                     </th>
-                    <th className="text-left px-4 py-3 text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       Placed
                     </th>
-                    <th className="text-right px-4 py-3 text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">
                       Total
                     </th>
                     <th className="w-8" />
@@ -1784,18 +1699,17 @@ export default function IncomingOrdersPage() {
                 </thead>
                 {statusFilter === "AWAITING_PAYMENT" ? (
                   <>
-                    {/* Section: Receipt submitted — needs supplier action */}
+                    {/* Section: Payment Receipt Submitted */}
                     <tbody>
                       <tr>
                         <td
                           colSpan={6}
-                          className="px-4 py-2 bg-blue-50 border-y border-blue-100"
+                          className="px-6 py-3.5 bg-blue-50/50 border-y border-blue-50"
                         >
-                          <span className="text-xs font-semibold text-blue-700 uppercase tracking-wider">
-                            💳 Payment Receipt Submitted — Awaiting Your
-                            Confirmation
+                          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-widest flex items-center gap-2">
+                            👑 Payment Receipt Submitted — Awaiting Your Confirmation
                             {receiptSubmittedOrders.length > 0 && (
-                              <span className="ml-2 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs">
+                              <span className="bg-blue-600 text-white rounded-full px-2 py-0.5 text-[10px] font-bold">
                                 {receiptSubmittedOrders.length}
                               </span>
                             )}
@@ -1806,7 +1720,7 @@ export default function IncomingOrdersPage() {
                         <tr>
                           <td
                             colSpan={6}
-                            className="px-4 py-4 text-center text-sm text-slate-400"
+                            className="px-6 py-6 text-center text-sm font-semibold text-gray-400 italic"
                           >
                             No receipts submitted yet.
                           </td>
@@ -1826,17 +1740,18 @@ export default function IncomingOrdersPage() {
                         ))
                       )}
                     </tbody>
-                    {/* Section: Waiting for buyer to submit receipt */}
+
+                    {/* Section: Waiting for Buyer Receipt */}
                     <tbody>
                       <tr>
                         <td
                           colSpan={6}
-                          className="px-4 py-2 bg-amber-50 border-y border-amber-100"
+                          className="px-6 py-3.5 bg-amber-50/50 border-y border-orange-100"
                         >
-                          <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
+                          <span className="text-[10px] font-bold text-amber-700 uppercase tracking-widest flex items-center gap-2">
                             ⏳ Waiting for Buyer to Attach Payment
                             {waitingForReceiptOrders.length > 0 && (
-                              <span className="ml-2 bg-amber-500 text-white rounded-full px-2 py-0.5 text-xs">
+                              <span className="bg-amber-500 text-white rounded-full px-2 py-0.5 text-[10px] font-bold">
                                 {waitingForReceiptOrders.length}
                               </span>
                             )}
@@ -1847,7 +1762,7 @@ export default function IncomingOrdersPage() {
                         <tr>
                           <td
                             colSpan={6}
-                            className="px-4 py-4 text-center text-sm text-slate-400"
+                            className="px-6 py-6 text-center text-sm font-semibold text-gray-400 italic"
                           >
                             All buyers have submitted their receipts.
                           </td>
@@ -1885,37 +1800,46 @@ export default function IncomingOrdersPage() {
                   </tbody>
                 )}
               </table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="px-8 py-5 bg-gray-50/40 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  Page <span className="text-gray-900">{page}</span> of{" "}
+                  <span className="text-gray-900">{totalPages}</span> ({total} orders)
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-white text-[10px] font-bold transition-all disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer bg-white"
+                  >
+                    PREV
+                  </button>
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-white text-[10px] font-bold transition-all disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer bg-white"
+                  >
+                    NEXT
+                  </button>
+                </div>
+              </div>
             )}
           </div>
+        )}
+      </main>
+    </div>
+  );
+}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between text-sm text-slate-600">
-              <span>
-                Page {page} of {totalPages} ({total} orders)
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40"
-                >
-                  ← Prev
-                </button>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40"
-                >
-                  Next →
-                </button>
-              </div>
-            </div>
-          )}
-        </div>{" "}
-        {/* flex-1 content */}
-      </div>{" "}
-      {/* -m-6 flex */}
+// ── Wrapper Page (renders children within Provider) ──────────────────
+
+export default function IncomingOrdersPage() {
+  return (
+    <SupplierLayout>
+      <IncomingOrdersPageContent />
     </SupplierLayout>
   );
 }

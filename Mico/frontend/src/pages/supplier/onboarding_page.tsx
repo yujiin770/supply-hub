@@ -7,6 +7,7 @@ import {
 } from "../../features/api_clients/supplier_api";
 import type { KycDocType } from "../../features/api_clients/admin_api";
 import SupplierLayout from "../../layouts/supplier_layout";
+import { PartyPopper, FileText, Clock, AlertTriangle } from "lucide-react";
 
 const REQUIRED_TYPES: KycDocType[] = [
   "DTI_SEC",
@@ -42,7 +43,12 @@ export default function OnboardingPage() {
   if (loadingSupplier || loadingDocs) {
     return (
       <SupplierLayout>
-        <div className="text-center py-20 text-slate-400 text-sm">Loading…</div>
+        <div className="flex flex-col items-center justify-center p-20 space-y-4">
+          <div className="w-10 h-10 border-4 border-gray-100 border-t-[#00925d] rounded-full animate-spin"></div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            Syncing Status...
+          </p>
+        </div>
       </SupplierLayout>
     );
   }
@@ -63,153 +69,184 @@ export default function OnboardingPage() {
 
   return (
     <SupplierLayout>
-      <div className="max-w-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Onboarding</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+      <div className="min-h-[80vh] flex flex-col items-center justify-center py-10 px-4">
+        <div className="w-full max-w-4xl mx-auto">
+          {/* --- Centered Header Section --- */}
+          <div className="text-center mb-12">
+            <div className="inline-block mb-4">
+              <SupplierStatusBadge status={supplier.status} />
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-semibold text-gray-900 tracking-tight">
+              Onboarding
+            </h1>
+            <p className="text-lg text-gray-400 font-bold mt-2">
               {supplier.legal_name}
             </p>
           </div>
-          <SupplierStatusBadge status={supplier.status} />
+
+          {/* --- Stepper Card --- */}
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 p-10 sm:p-12 shadow-sm mb-8 w-full">
+            <Stepper steps={ONBOARDING_STEPS} current={stepIdx} />
+          </div>
+
+          {/* --- Status-Specific Card Layouts --- */}
+          {supplier.status === "PENDING_KYC" && (
+            <div className="w-full bg-white p-2 rounded-4xl border border-gray-100 shadow-sm animate-fade-in">
+              <div className="bg-amber-50/40 border border-amber-100 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+                  <FileText className="w-7 h-7 text-amber-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-xl font-semibold text-amber-900">
+                    Step 2: Upload KYC Documents
+                  </h4>
+                  <p className="text-sm text-amber-700/70 font-bold mt-1 leading-relaxed">
+                    Upload your required verification documents to proceed to
+                    the admin review stage.
+                  </p>
+
+                  {/* Progress panel */}
+                  <div className="mt-6 max-w-md mx-auto sm:mx-0">
+                    <div className="flex items-center justify-between text-xs font-bold text-amber-600 mb-1.5 uppercase tracking-wider">
+                      <span>Required documents submitted</span>
+                      <span>
+                        {requiredDone}/{requiredTotal}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                      <div
+                        className="bg-emerald-500 h-full rounded-full transition-all duration-1000"
+                        style={{
+                          width: `${(requiredDone / requiredTotal) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    {requiredDone === requiredTotal ? (
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-3 text-emerald-800 font-bold text-sm inline-block shadow-xs">
+                        ✓ All required documents submitted. Awaiting admin
+                        review.
+                      </div>
+                    ) : (
+                      <Link
+                        to="/supplier/kyc"
+                        className="inline-flex items-center gap-2 bg-[#00925d] hover:bg-[#007a4e] text-white px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-md active:scale-95 cursor-pointer outline-none border-none"
+                      >
+                        Go to KYC Upload →
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {supplier.status === "PENDING_APPROVAL" && (
+            <div className="w-full bg-white p-2 rounded-4xl border border-gray-100 shadow-sm animate-fade-in">
+              <div className="bg-blue-50/40 border border-blue-100 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+                  <Clock className="w-7 h-7 text-blue-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-xl font-semibold text-blue-900">
+                    Step 3: Under Admin Review
+                  </h4>
+                  <p className="text-sm text-blue-700/70 font-bold mt-1 leading-relaxed">
+                    Our admin team is reviewing your KYC documents. This
+                    typically takes 1–3 business days.
+                  </p>
+                  <div className="mt-6">
+                    <Link
+                      to="/supplier/kyc"
+                      className="text-sm text-emerald-600 hover:underline font-bold"
+                    >
+                      View uploaded documents →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {supplier.status === "APPROVED" && (
+            <div className="w-full bg-white p-2 rounded-4xl border border-gray-100 shadow-sm animate-fade-in">
+              <div className="bg-emerald-50/40 border border-emerald-100 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+                  <PartyPopper className="w-7 h-7 text-emerald-500" />
+                </div>
+                <div>
+                  <h4 className="text-xl font-semibold text-emerald-900">
+                    Account approved!
+                  </h4>
+                  <p className="text-sm text-emerald-700/70 font-bold mt-1 leading-relaxed">
+                    Your supplier account is fully activated. You can now access
+                    Catalogs and start managing your Orders.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {supplier.status === "REJECTED" && (
+            <div className="w-full bg-white p-2 rounded-4xl border border-gray-100 shadow-sm animate-fade-in">
+              <div className="bg-rose-50/40 border border-rose-100 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+                  <span className="text-rose-500 text-3xl font-bold shrink-0 select-none">
+                    ✕
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-xl font-semibold text-rose-900">
+                    Application Rejected
+                  </h4>
+                  {supplier.rejection_reason && (
+                    <div className="mt-4 p-4 bg-white border border-rose-100 rounded-2xl text-left">
+                      <p className="text-xs font-bold text-rose-600 uppercase tracking-widest mb-1">
+                        Reason:
+                      </p>
+                      <p className="text-sm font-semibold text-rose-800">
+                        {supplier.rejection_reason}
+                      </p>
+                    </div>
+                  )}
+                  <p className="text-sm text-rose-700/70 font-bold mt-3 leading-relaxed">
+                    Please review your documents and contact support if you
+                    believe this was an error.
+                  </p>
+                  <div className="mt-6">
+                    <Link
+                      to="/supplier/kyc"
+                      className="inline-flex bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors shadow-md active:scale-95 border-none outline-none cursor-pointer"
+                    >
+                      Review &amp; Re-submit Documents
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {supplier.status === "SUSPENDED" && (
+            <div className="w-full bg-white p-2 rounded-4xl border border-gray-100 shadow-sm animate-fade-in">
+              <div className="bg-[#FFFBEB] border border-orange-100 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+                  <AlertTriangle className="w-7 h-7 text-amber-500" />
+                </div>
+                <div>
+                  <h4 className="text-xl font-semibold text-amber-900">
+                    Account Suspended
+                  </h4>
+                  <p className="text-sm text-amber-700/70 font-bold mt-1 leading-relaxed">
+                    Your account has been suspended. Please contact support for
+                    assistance.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* Stepper */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-          <Stepper steps={ONBOARDING_STEPS} current={stepIdx} />
-        </div>
-
-        {/* Status-specific content */}
-        {supplier.status === "PENDING_KYC" && (
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-            <h2 className="font-semibold text-slate-800">
-              Step 2: Upload KYC Documents
-            </h2>
-            <p className="text-sm text-slate-600">
-              Upload your required verification documents to proceed to the
-              admin review stage.
-            </p>
-
-            {/* Progress */}
-            <div>
-              <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-                <span>Required documents submitted</span>
-                <span className="font-semibold text-slate-700">
-                  {requiredDone}/{requiredTotal}
-                </span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2">
-                <div
-                  className="bg-emerald-500 h-2 rounded-full transition-all"
-                  style={{ width: `${(requiredDone / requiredTotal) * 100}%` }}
-                />
-              </div>
-            </div>
-
-            {requiredDone === requiredTotal ? (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
-                <p className="text-sm text-emerald-800 font-medium">
-                  ✓ All required documents submitted. Awaiting admin review.
-                </p>
-              </div>
-            ) : (
-              <Link
-                to="/supplier/kyc"
-                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700
-                           text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
-              >
-                Go to KYC Upload →
-              </Link>
-            )}
-          </div>
-        )}
-
-        {supplier.status === "PENDING_APPROVAL" && (
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-3">
-            <h2 className="font-semibold text-slate-800">
-              Step 3: Under Admin Review
-            </h2>
-            <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
-              <span className="text-blue-500 text-lg mt-0.5">⏳</span>
-              <div>
-                <p className="text-sm font-medium text-blue-900">
-                  Documents submitted — awaiting review
-                </p>
-                <p className="text-xs text-blue-700 mt-0.5">
-                  Our admin team is reviewing your KYC documents. This typically
-                  takes 1–3 business days.
-                </p>
-              </div>
-            </div>
-            <Link
-              to="/supplier/kyc"
-              className="text-sm text-emerald-600 hover:underline font-medium"
-            >
-              View uploaded documents →
-            </Link>
-          </div>
-        )}
-
-        {supplier.status === "APPROVED" && (
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-3">
-            <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
-              <span className="text-emerald-600 text-2xl">🎉</span>
-              <div>
-                <p className="text-sm font-semibold text-emerald-900">
-                  Account approved!
-                </p>
-                <p className="text-xs text-emerald-700 mt-0.5">
-                  Your supplier account is fully activated. You can now access
-                  Catalogs and Orders.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {supplier.status === "REJECTED" && (
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-            <h2 className="font-semibold text-red-700">Application Rejected</h2>
-            {supplier.rejection_reason && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                <p className="text-xs font-semibold text-red-700 mb-1">
-                  Reason:
-                </p>
-                <p className="text-sm text-red-800">
-                  {supplier.rejection_reason}
-                </p>
-              </div>
-            )}
-            <p className="text-sm text-slate-600">
-              Please review your documents and contact support if you believe
-              this was an error.
-            </p>
-            <div className="flex gap-3">
-              <Link
-                to="/supplier/kyc"
-                className="inline-flex bg-red-600 hover:bg-red-700 text-white text-sm font-medium
-                           px-5 py-2.5 rounded-lg transition-colors"
-              >
-                Review &amp; Re-submit Documents
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {supplier.status === "SUSPENDED" && (
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3">
-              <p className="text-sm font-semibold text-yellow-800">
-                Account Suspended
-              </p>
-              <p className="text-xs text-yellow-700 mt-1">
-                Your account has been suspended. Please contact support for
-                assistance.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </SupplierLayout>
   );

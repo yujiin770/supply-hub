@@ -16,6 +16,12 @@ import {
 } from "../../features/api_clients/client_creds_api";
 import AppLayout from "../../layouts/app_layout";
 import { toast } from "../../lib/toast";
+import {
+  Key,
+  Plus,
+  Info,
+  AlertTriangle,
+} from "lucide-react";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -44,15 +50,15 @@ function CopyRow({ label, value }: { label: string; value: string }) {
     });
   }
   return (
-    <div>
-      <p className="text-xs text-slate-500 mb-1">{label}</p>
+    <div className="space-y-2">
+      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block">{label}</label>
       <div className="flex items-center gap-2">
-        <code className="flex-1 font-mono text-sm bg-slate-100 rounded px-3 py-2 break-all">
+        <code className="flex-1 font-mono text-xs bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 break-all font-bold text-gray-700 leading-relaxed">
           {value}
         </code>
         <button
           onClick={copy}
-          className="shrink-0 text-xs px-3 py-2 rounded border border-slate-300 hover:bg-slate-50 transition-colors"
+          className="shrink-0 text-xs font-bold px-4 py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-all cursor-pointer outline-none whitespace-nowrap"
         >
           {copied ? "✓ Copied" : "Copy"}
         </button>
@@ -70,21 +76,24 @@ function CredentialsRevealPanel({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-white shadow-2xl p-6 flex flex-col gap-5">
+      <div className="w-full max-w-lg rounded-3xl bg-white shadow-2xl p-8 flex flex-col gap-6 border border-gray-100 animate-fade-in">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-xl font-bold text-[#002244]">
             {data.name} — API Credentials
           </h2>
-          <p className="mt-2 text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-2 border border-amber-200">
-            ⚠️ Save the <strong>Client Secret</strong> now — it will{" "}
-            <strong>never</strong> be shown again.
-          </p>
+          <div className="mt-4 p-4 bg-[#FFFBEB] border border-orange-100 rounded-2xl flex items-start gap-3.5 text-[#92400E]">
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-xs font-semibold leading-relaxed">
+              ⚠️ Save the <strong>Client Secret</strong> now — it will{" "}
+              <strong>never</strong> be shown again.
+            </p>
+          </div>
         </div>
         <div className="flex flex-col gap-4">
           <CopyRow label="Client ID" value={data.client_id} />
           <CopyRow label="Client Secret" value={data.client_secret} />
         </div>
-        <div className="text-xs text-slate-400 bg-slate-50 rounded-lg px-3 py-2">
+        <div className="text-[11px] text-blue-700 font-medium bg-blue-50/40 border border-blue-100/50 rounded-2xl px-4 py-3 leading-relaxed">
           <strong>How to use:</strong> POST /auth/client-token with{" "}
           <code>client_id</code> + <code>client_secret</code> to receive a
           short-lived JWT for API calls.
@@ -92,7 +101,7 @@ function CredentialsRevealPanel({
         <div className="flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
+            className="w-full sm:w-auto bg-[#004797] hover:bg-[#003570] text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-xl shadow-[#004797]/15 active:scale-[0.98] cursor-pointer outline-none border-none"
           >
             I have saved the credentials
           </button>
@@ -149,14 +158,14 @@ function RotateModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-sm rounded-xl bg-white shadow-2xl p-6 flex flex-col gap-5">
+      <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl p-8 flex flex-col gap-6 border border-gray-100 animate-fade-in">
         {step === "confirm" ? (
           <>
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-xl font-bold text-[#002244]">
                 Rotate credentials?
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-3 text-sm font-semibold text-gray-500 leading-relaxed">
                 This will invalidate the existing <strong>client_id</strong> and{" "}
                 <strong>client_secret</strong> for{" "}
                 <strong>{target.name}</strong> and issue new ones. Any
@@ -164,17 +173,17 @@ function RotateModal({
                 immediately.
               </p>
             </div>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-sm font-bold bg-transparent text-gray-500 hover:bg-gray-50 border border-gray-200 transition-all cursor-pointer outline-none"
               >
                 Cancel
               </button>
               <button
                 onClick={() => void sendOtp()}
                 disabled={loading}
-                className="px-4 py-2 text-sm rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-medium disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-amber-500/10 active:scale-[0.98] cursor-pointer border-none outline-none disabled:opacity-50"
               >
                 {loading ? "Sending…" : "Send OTP & continue"}
               </button>
@@ -183,16 +192,16 @@ function RotateModal({
         ) : (
           <>
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-xl font-bold text-[#002244]">
                 Enter OTP
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm font-semibold text-gray-400">
                 Enter the 6-digit code sent to your email.
               </p>
             </div>
             <form
               onSubmit={(e) => void submitOtp(e)}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-6"
             >
               <input
                 ref={otpRef}
@@ -202,20 +211,20 @@ function RotateModal({
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 placeholder="000000"
-                className="border border-slate-300 rounded-lg px-3 py-2 text-center text-xl font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full bg-gray-50 border border-transparent rounded-2xl px-4 py-4 text-center text-2xl font-mono font-bold tracking-[0.25em] text-[#002244] focus:bg-white focus:border-amber-500/30 focus:ring-4 focus:ring-amber-500/5 transition-all outline-none"
               />
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-sm font-bold bg-transparent text-gray-500 hover:bg-gray-50 border border-gray-200 transition-all cursor-pointer outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || otp.length < 6}
-                  className="px-4 py-2 text-sm rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-medium disabled:opacity-50 transition-colors"
+                  className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-amber-500/10 active:scale-[0.98] cursor-pointer border-none outline-none disabled:opacity-50"
                 >
                   {loading ? "Rotating…" : "Rotate credentials"}
                 </button>
@@ -272,15 +281,15 @@ function CreateModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl p-6 flex flex-col gap-5">
-        <h2 className="text-lg font-semibold text-slate-900">New API Client</h2>
+      <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl p-8 flex flex-col gap-6 border border-gray-100 animate-fade-in">
+        <h2 className="text-xl font-bold text-[#002244]">New API Client</h2>
         <form
           onSubmit={(e) => void handleSubmit(e)}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-5"
         >
-          <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
-              Name <span className="text-red-500">*</span>
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block">
+              Name <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
@@ -288,11 +297,11 @@ function CreateModal({
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
               placeholder="e.g. Buyer ERP Integration"
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-medium focus:bg-white focus:border-[#004797]/30 focus:ring-4 focus:ring-[#004797]/5 transition-all outline-none"
             />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block">
               Description
             </label>
             <textarea
@@ -300,12 +309,12 @@ function CreateModal({
               value={form.description ?? ""}
               onChange={(e) => set("description", e.target.value)}
               placeholder="Optional notes"
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-medium focus:bg-white focus:border-[#004797]/30 focus:ring-4 focus:ring-[#004797]/5 transition-all outline-none resize-none"
             />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
-              Expiry date (leave blank = never expires)
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block">
+              Expiry date <span className="text-gray-400 font-normal">(leave blank = never expires)</span>
             </label>
             <input
               type="datetime-local"
@@ -316,21 +325,21 @@ function CreateModal({
                   e.target.value ? new Date(e.target.value).toISOString() : "",
                 )
               }
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-gray-700 focus:bg-white focus:border-[#004797]/30 focus:ring-4 focus:ring-[#004797]/5 transition-all outline-none"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-1">
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm rounded-lg border border-slate-200 hover:bg-slate-50"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-sm font-bold bg-transparent text-gray-500 hover:bg-gray-50 border border-gray-200 transition-all cursor-pointer outline-none"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !form.name.trim()}
-              className="px-4 py-2 text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-50 transition-colors"
+              className="w-full sm:w-auto bg-[#004797] hover:bg-[#003570] disabled:bg-gray-200 cursor-pointer text-white px-8 py-3.5 rounded-xl font-bold text-sm shadow-xl shadow-[#004797]/15 active:scale-[0.98] outline-none"
             >
               {loading ? "Creating…" : "Create & reveal credentials"}
             </button>
@@ -439,31 +448,39 @@ export default function ApiClientsPage() {
         />
       )}
 
-      <div className="space-y-6">
+      <div className="max-w-7xl mx-auto pt-4 sm:pt-6 pb-20">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">API Clients</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
-              OAuth2 client credentials for external system integrations (e.g.
-              buyer ERPs, order APIs).
-            </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100">
+              <Key className="w-7 h-7 text-[#004797]" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-semibold text-[#002244] tracking-tight">API Clients</h1>
+              <p className="text-sm font-bold text-[#004797] mt-0.5">
+                {clients.length} integrations <span className="text-gray-400">Total</span>
+              </p>
+            </div>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            className="w-full sm:w-auto bg-[#004797] hover:bg-[#003570] text-white px-8 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/10 active:scale-[0.98] cursor-pointer border-none outline-none"
           >
-            + New Client
+            <Plus className="w-5 h-5" />
+            New Client
           </button>
         </div>
 
         {/* How it works */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-800 space-y-1">
-          <p className="font-semibold">How external systems authenticate</p>
-          <ol className="list-decimal list-inside space-y-0.5 text-blue-700">
+        <div className="bg-[#FFFBEB] border border-orange-100 rounded-2xl p-5 text-[#92400E] mb-8 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-2">
+            <Info className="w-4 h-4 text-amber-600 shrink-0" />
+            <h4 className="text-sm font-bold uppercase tracking-wide">How external systems authenticate</h4>
+          </div>
+          <ol className="list-decimal list-inside space-y-1.5 text-xs font-semibold pl-1">
             <li>
               Call{" "}
-              <code className="bg-blue-100 px-1 rounded">
+              <code className="bg-amber-100/80 px-1.5 py-0.5 rounded font-mono text-amber-800">
                 POST /api/v1/auth/client-token
               </code>{" "}
               with <code>client_id</code> + <code>client_secret</code>
@@ -479,91 +496,162 @@ export default function ApiClientsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
           {loading ? (
-            <div className="py-16 text-center text-sm text-slate-400">
-              Loading…
+            <div className="flex flex-col items-center justify-center p-20 space-y-4">
+              <div className="w-10 h-10 border-4 border-gray-100 border-t-[#004797] rounded-full animate-spin"></div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Syncing integrations...</p>
             </div>
           ) : clients.length === 0 ? (
-            <div className="py-16 text-center">
-              <p className="text-slate-500 text-sm font-medium">
-                No API clients yet.
-              </p>
-              <p className="text-slate-400 text-xs mt-1">
+            <div className="flex flex-col items-center justify-center p-20 space-y-2 text-gray-400">
+              <Key className="w-12 h-12 stroke-1" />
+              <p className="text-sm font-semibold text-gray-600">No API clients yet.</p>
+              <p className="text-xs text-gray-400">
                 Create one to issue credentials to an external system.
               </p>
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">
-                    Client ID
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">
-                    Expires
-                  </th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">
-                    Created
-                  </th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-slate-100">
+            <>
+              {/* Desktop View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50/50 border-b border-gray-50">
+                      <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Name
+                      </th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Client ID
+                      </th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">
+                        Status
+                      </th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Expires
+                      </th>
+                      <th className="px-8 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Created
+                      </th>
+                      <th className="px-8 py-5"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {clients.map((client) => (
+                      <tr
+                        key={client.id}
+                        className="hover:bg-gray-50/30 transition-colors group"
+                      >
+                        <td className="px-8 py-6">
+                          <div className="font-bold text-sm text-[#002244]">
+                            {client.name}
+                          </div>
+                          {client.description && (
+                            <div className="text-xs text-gray-400 italic mt-0.5">
+                              {client.description}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-8 py-6 font-mono font-bold text-xs text-gray-400">
+                          {maskId(client.client_id)}
+                        </td>
+                        <td className="px-8 py-6 text-center">
+                          {client.is_active ? (
+                            <span className="px-3 py-1 rounded-lg text-[10px] font-bold border tracking-wider uppercase inline-block bg-[#eaf7f2] text-[#00925d] border-[#c4e9db]">
+                              Active
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 rounded-lg text-[10px] font-bold border tracking-wider uppercase inline-block bg-rose-50 text-rose-700 border-rose-100">
+                              Revoked
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-8 py-6 font-bold text-xs text-gray-400">
+                          {fmtDate(client.expires_at)}
+                        </td>
+                        <td className="px-8 py-6 font-bold text-xs text-gray-400">
+                          {fmtDate(client.created_at)}
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {client.is_active && (
+                              <>
+                                <button
+                                  onClick={() => setRotateTarget(client)}
+                                  className="px-4 py-2 rounded-xl text-[10px] font-bold bg-[#fffbeb] text-[#d97706] border border-[#fef3c7] hover:bg-[#d97706] hover:text-white transition-all cursor-pointer outline-none"
+                                >
+                                  Rotate
+                                </button>
+                                <button
+                                  onClick={() => void handleRevoke(client)}
+                                  className="px-4 py-2 rounded-xl text-[10px] font-bold bg-transparent border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all cursor-pointer outline-none"
+                                >
+                                  Revoke
+                                </button>
+                              </>
+                            )}
+                            <button
+                              onClick={() => void handleDelete(client)}
+                              className="px-4 py-2 rounded-xl text-[10px] font-bold bg-rose-50 border border-rose-100 text-rose-700 hover:bg-rose-700 hover:text-white transition-all cursor-pointer outline-none"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile View */}
+              <div className="lg:hidden divide-y divide-gray-50">
                 {clients.map((client) => (
-                  <tr
+                  <div
                     key={client.id}
-                    className="hover:bg-slate-50 transition-colors"
+                    className="p-6 space-y-5 hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-slate-900">
-                        {client.name}
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 pr-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">
+                          {maskId(client.client_id)}
+                        </p>
+                        <h3 className="text-lg font-semibold text-[#002244] leading-tight">
+                          {client.name}
+                        </h3>
+                        {client.description && (
+                          <p className="text-xs text-gray-400 font-bold italic mt-1">
+                            {client.description}
+                          </p>
+                        )}
                       </div>
-                      {client.description && (
-                        <div className="text-xs text-slate-400 mt-0.5">
-                          {client.description}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-600">
-                      {maskId(client.client_id)}
-                    </td>
-                    <td className="px-4 py-3">
                       {client.is_active ? (
-                        <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                        <span className="px-3 py-1 rounded-lg text-[10px] font-bold border tracking-wider uppercase inline-block bg-[#eaf7f2] text-[#00925d] border-[#c4e9db]">
                           Active
                         </span>
                       ) : (
-                        <span className="text-xs font-medium text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                        <span className="px-3 py-1 rounded-lg text-[10px] font-bold border tracking-wider uppercase inline-block bg-rose-50 text-rose-700 border-rose-100">
                           Revoked
                         </span>
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">
-                      {fmtDate(client.expires_at)}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">
-                      {fmtDate(client.created_at)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-2">
+                    </div>
+
+                    <div className="flex flex-col gap-2 pt-4 border-t border-gray-50">
+                      <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>EXPIRES {fmtDate(client.expires_at)}</span>
+                        <span>JOINED {fmtDate(client.created_at)}</span>
+                      </div>
+                      <div className="flex gap-2 pt-2 justify-end">
                         {client.is_active && (
                           <>
                             <button
                               onClick={() => setRotateTarget(client)}
-                              className="text-xs px-2.5 py-1 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50 transition-colors"
+                              className="px-4 py-2 rounded-xl text-[10px] font-bold bg-[#fffbeb] text-[#d97706] border border-[#fef3c7] hover:bg-[#d97706] hover:text-white transition-all cursor-pointer outline-none"
                             >
                               Rotate
                             </button>
                             <button
                               onClick={() => void handleRevoke(client)}
-                              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                              className="px-4 py-2 rounded-xl text-[10px] font-bold bg-transparent border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all cursor-pointer outline-none"
                             >
                               Revoke
                             </button>
@@ -571,16 +659,23 @@ export default function ApiClientsPage() {
                         )}
                         <button
                           onClick={() => void handleDelete(client)}
-                          className="text-xs px-2.5 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
+                          className="px-4 py-2 rounded-xl text-[10px] font-bold bg-rose-50 border border-rose-100 text-rose-700 hover:bg-rose-700 hover:text-white transition-all cursor-pointer outline-none"
                         >
                           Delete
                         </button>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+
+              {/* Pagination (Inside Card Container) */}
+              <div className="px-8 py-5 bg-gray-50/40 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  Showing <span className="text-gray-900">{clients.length}</span> total results
+                </p>
+              </div>
+            </>
           )}
         </div>
       </div>
